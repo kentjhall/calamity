@@ -21,8 +21,8 @@ public class Player {
     public Player(Vector2 loc){
         pTexture=new Texture("player/dGodR_0.png");
 
-        width=230*MyGdxGame.masterScale;
-        height=230*MyGdxGame.masterScale;
+        width=250*MyGdxGame.masterScale;
+        height=250*MyGdxGame.masterScale;
 
         this.loc=loc;
         vel=new Vector2(0, 0);
@@ -96,5 +96,9 @@ public class Player {
 
     public Vector2 getLoc(){
         return loc;
+    }
+
+    public int getStrataNum(){
+        return strataNum;
     }
 }

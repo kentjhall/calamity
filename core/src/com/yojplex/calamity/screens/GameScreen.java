@@ -5,7 +5,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.yojplex.calamity.Background;
 import com.yojplex.calamity.DropMenu;
+import com.yojplex.calamity.Foreground;
+import com.yojplex.calamity.Monster;
 import com.yojplex.calamity.MyGdxGame;
 import com.yojplex.calamity.Player;
 import com.yojplex.calamity.StrataBorder;
@@ -18,12 +21,20 @@ public class GameScreen implements Screen {
     private static boolean shiftStrata;
     private static boolean shiftDirection;
     private static float shiftSpeed;
-    private Player player;
-    private StrataBorder strataBorder1;
-    private StrataBorder strataBorder2;
-    private StrataBorder strataBorder3;
-    private StrataBorder strataBorder4;
+    private static Player player;
+//    private StrataBorder strataBorder1;
+//    private StrataBorder strataBorder2;
+//    private StrataBorder strataBorder3;
+//    private StrataBorder strataBorder4;
     private static DropMenu dropMenu;
+    private Background bg;
+    private Foreground fg1;
+    private Foreground fg2;
+    private Foreground fg3;
+    private Foreground fg4;
+    private Foreground fg5;
+    private Foreground fg6;
+    private Monster test;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -31,12 +42,21 @@ public class GameScreen implements Screen {
         player=new Player(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
         shiftSpeed=20*MyGdxGame.masterScale;
 
-        strataBorder1=new StrataBorder(new Vector2(-Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 0.75f));
-        strataBorder2=new StrataBorder(new Vector2(-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()*0.5f));
-        strataBorder3=new StrataBorder(new Vector2(-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()*0.25f));
-        strataBorder4=new StrataBorder(new Vector2(-Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight()));
+//        strataBorder1=new StrataBorder(new Vector2(-Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() * 0.75f));
+//        strataBorder2=new StrataBorder(new Vector2(-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()*0.5f));
+//        strataBorder3=new StrataBorder(new Vector2(-Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()*0.25f));
+//        strataBorder4=new StrataBorder(new Vector2(-Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight()));
 
         dropMenu=new DropMenu();
+        fg1=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
+        fg2=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.5f));
+        fg3=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.25f));
+        fg4=new Foreground(new Vector2(0, -1*Gdx.graphics.getHeight()*0.25f));
+        fg5=new Foreground(new Vector2(0, Gdx.graphics.getHeight()));
+        fg6=new Foreground(new Vector2(0, 0));
+        bg=new Background();
+
+        test=new Monster(Monster.Type.MUSHY, 100);
     }
     @Override
     public void show() {
@@ -49,11 +69,18 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
+        bg.draw(batch);
         player.draw(batch);
-        strataBorder1.draw(batch);
-        strataBorder2.draw(batch);
-        strataBorder3.draw(batch);
-        strataBorder4.draw(batch);
+        fg1.draw(batch);
+        fg2.draw(batch);
+        fg3.draw(batch);
+        fg4.draw(batch);
+        fg5.draw(batch);
+        fg6.draw(batch);
+//        strataBorder1.draw(batch);
+//        strataBorder2.draw(batch);
+//        strataBorder3.draw(batch);
+//        strataBorder4.draw(batch);
         dropMenu.draw(batch);
         batch.end();
 
@@ -96,10 +123,17 @@ public class GameScreen implements Screen {
     public void dispose() {
         player.dispose();
         dropMenu.dispose();
-        strataBorder1.dispose();
-        strataBorder2.dispose();
-        strataBorder3.dispose();
-        strataBorder4.dispose();
+//        strataBorder1.dispose();
+//        strataBorder2.dispose();
+//        strataBorder3.dispose();
+//        strataBorder4.dispose();
+        fg1.dispose();
+        fg2.dispose();
+        fg3.dispose();
+        fg4.dispose();
+        fg5.dispose();
+        fg6.dispose();
+
     }
 
     public static boolean getShiftStrata(){
@@ -116,5 +150,9 @@ public class GameScreen implements Screen {
 
     public static DropMenu getDropMenu(){
         return dropMenu;
+    }
+
+    public static Player getPlayer(){
+        return player;
     }
 }
