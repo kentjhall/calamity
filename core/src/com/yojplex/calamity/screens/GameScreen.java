@@ -23,7 +23,7 @@ public class GameScreen implements Screen {
     private StrataBorder strataBorder2;
     private StrataBorder strataBorder3;
     private StrataBorder strataBorder4;
-    private DropMenu dropMenu;
+    private static DropMenu dropMenu;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -95,6 +95,11 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         player.dispose();
+        dropMenu.dispose();
+        strataBorder1.dispose();
+        strataBorder2.dispose();
+        strataBorder3.dispose();
+        strataBorder4.dispose();
     }
 
     public static boolean getShiftStrata(){
@@ -107,5 +112,9 @@ public class GameScreen implements Screen {
 
     public static float getShiftSpeed(){
         return shiftSpeed;
+    }
+
+    public static DropMenu getDropMenu(){
+        return dropMenu;
     }
 }

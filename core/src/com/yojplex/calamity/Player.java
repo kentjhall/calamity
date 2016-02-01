@@ -10,7 +10,7 @@ import com.yojplex.calamity.screens.GameScreen;
  * Created by kenthall on 1/31/16.
  */
 public class Player {
-    private Texture squareB;
+    private Texture pTexture;
     private float width;
     private float height;
     private Vector2 loc;
@@ -19,26 +19,28 @@ public class Player {
     private boolean strataChange;
 
     public Player(Vector2 loc){
-        squareB=new Texture("squareB.jpg");
+        pTexture=new Texture("player/dGodR_0.png");
 
-        width=175*MyGdxGame.masterScale;
-        height=175*MyGdxGame.masterScale;
+        width=230*MyGdxGame.masterScale;
+        height=230*MyGdxGame.masterScale;
 
         this.loc=loc;
         vel=new Vector2(0, 0);
     }
 
     public void draw(SpriteBatch batch){
-        batch.draw(squareB, loc.x, loc.y, width, height);
+        batch.draw(pTexture, loc.x, loc.y, width, height);
         loc.x+=vel.x;
         loc.y+=vel.y;
 
         if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
             if (strataNum>0) {
                 vel.x = -10;
+                pTexture=new Texture("player/dGodL_0.png");
             }
             else if (loc.x>0){
                 vel.x = -10;
+                pTexture=new Texture("player/dGodL_0.png");
             }
             else{
                 vel.x=0;
@@ -46,6 +48,7 @@ public class Player {
         }
         else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
             vel.x=10;
+            pTexture=new Texture("player/dGodR_0.png");
         }
         else{
             vel.x=0;
@@ -88,7 +91,7 @@ public class Player {
     }
 
     public void dispose(){
-        squareB.dispose();
+        pTexture.dispose();
     }
 
     public Vector2 getLoc(){
