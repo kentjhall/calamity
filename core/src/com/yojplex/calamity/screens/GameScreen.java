@@ -2,7 +2,6 @@ package com.yojplex.calamity.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.yojplex.calamity.Background;
@@ -11,7 +10,9 @@ import com.yojplex.calamity.Foreground;
 import com.yojplex.calamity.Monster;
 import com.yojplex.calamity.MyGdxGame;
 import com.yojplex.calamity.Player;
-import com.yojplex.calamity.StrataBorder;
+
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by kenthall on 1/31/16.
@@ -34,7 +35,7 @@ public class GameScreen implements Screen {
     private Foreground fg4;
     private Foreground fg5;
     private Foreground fg6;
-    private Monster test;
+    private static ArrayList<Monster> monsters;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -56,7 +57,8 @@ public class GameScreen implements Screen {
         fg6=new Foreground(new Vector2(0, 0));
         bg=new Background();
 
-        test=new Monster(Monster.Type.MUSHY, 100);
+        monsters=new ArrayList<Monster>();
+        monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(1, 2 + 1), new Vector2(500*MyGdxGame.masterScale, Gdx.graphics.getHeight()*0.5f)));
     }
     @Override
     public void show() {
@@ -71,12 +73,18 @@ public class GameScreen implements Screen {
         batch.begin();
         bg.draw(batch);
         player.draw(batch);
+
+        for (Monster monster:monsters){
+            monster.draw(batch);
+        }
+
         fg1.draw(batch);
         fg2.draw(batch);
         fg3.draw(batch);
         fg4.draw(batch);
         fg5.draw(batch);
         fg6.draw(batch);
+
 //        strataBorder1.draw(batch);
 //        strataBorder2.draw(batch);
 //        strataBorder3.draw(batch);
@@ -154,5 +162,9 @@ public class GameScreen implements Screen {
 
     public static Player getPlayer(){
         return player;
+    }
+
+    public static ArrayList<Monster> getMonsters() {
+        return monsters;
     }
 }

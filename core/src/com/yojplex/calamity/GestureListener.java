@@ -25,11 +25,11 @@ public class GestureListener implements GestureDetector.GestureListener{
 
     @Override
     public boolean fling(float velocityX, float velocityY, int button) {
-        if (GameScreen.getDropMenu().getDrawerUp() && velocityY>5000){
-            GameScreen.getDropMenu().setVelY(-velocityY*0.01f*MyGdxGame.masterScale);
+        if (GameScreen.getDropMenu().getDrawerUp() && velocityY>4000){
+            GameScreen.getDropMenu().setVelY(-velocityY*0.02f*MyGdxGame.masterScale);
         }
-        if (!GameScreen.getDropMenu().getDrawerUp() && velocityY<-5000){
-            GameScreen.getDropMenu().setVelY(-velocityY*0.01f*MyGdxGame.masterScale);
+        if (!GameScreen.getDropMenu().getDrawerUp() && velocityY<-4000){
+            GameScreen.getDropMenu().setVelY(-velocityY*0.02f*MyGdxGame.masterScale);
         }
         return false;
     }

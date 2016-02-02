@@ -3,6 +3,7 @@ package com.yojplex.calamity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.yojplex.calamity.screens.GameScreen;
 
@@ -17,23 +18,28 @@ public class Player {
     private Vector2 vel;
     private int strataNum;
     private boolean strataChange;
+    private Rectangle hitBox;
+    private boolean inBattle;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/dGodR_0.png");
+        inBattle=false;
 
-        width=250*MyGdxGame.masterScale;
-        height=250*MyGdxGame.masterScale;
+        width=200*MyGdxGame.masterScale;
+        height=270*MyGdxGame.masterScale;
 
         this.loc=loc;
         vel=new Vector2(0, 0);
+        hitBox=new Rectangle(loc.x, loc.y, width, height);
     }
 
     public void draw(SpriteBatch batch){
         batch.draw(pTexture, loc.x, loc.y, width, height);
         loc.x+=vel.x;
         loc.y+=vel.y;
+        hitBox.set(loc.x, loc.y, width, height);
 
-        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
+        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
             if (strataNum>0) {
                 vel.x = -10;
                 pTexture=new Texture("player/dGodL_0.png");
@@ -46,7 +52,7 @@ public class Player {
                 vel.x=0;
             }
         }
-        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
+        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
             vel.x=10;
             pTexture=new Texture("player/dGodR_0.png");
         }
@@ -100,5 +106,13 @@ public class Player {
 
     public int getStrataNum(){
         return strataNum;
+    }
+
+    public Rectangle getHitBox(){
+        return hitBox;
+    }
+
+    public void setInBattle(boolean inBattle){
+        this.inBattle=inBattle;
     }
 }
