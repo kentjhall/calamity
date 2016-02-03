@@ -28,7 +28,6 @@ public class Player {
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/dGodR_0.png");
-        inBattle=false;
 
         width=150*MyGdxGame.masterScale;
         height=220*MyGdxGame.masterScale;
@@ -44,7 +43,6 @@ public class Player {
         loc.y+=vel.y;
         hitBox.set(loc.x, loc.y, width, height);
 
-        System.out.println(inBattle);
         if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
             if (strataNum>0) {
                 vel.x = -10;

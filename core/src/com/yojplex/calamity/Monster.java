@@ -89,13 +89,13 @@ public class Monster {
             inBattle=true;
         }
 
-        if (loc.x>GameScreen.getPlayer().getLoc().x && Gdx.input.getX()<Gdx.graphics.getWidth()/2){
+        if (loc.x>GameScreen.getPlayer().getLoc().x && Gdx.input.getX()<Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
             }
         }
-        if (loc.x<GameScreen.getPlayer().getLoc().x && Gdx.input.getX()>Gdx.graphics.getWidth()/2){
+        if (loc.x<GameScreen.getPlayer().getLoc().x && Gdx.input.getX()>Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
