@@ -24,23 +24,26 @@ public class Foreground {
     private float height;
     private float velY;
     private float initLocY;
+    private boolean monsGenerated;
 
     public Foreground(Vector2 loc){
         this.loc=loc;
         width=Gdx.graphics.getWidth()*0.4f;
-        height=Gdx.graphics.getHeight()*0.26f;
+        height=Gdx.graphics.getHeight()*0.25f;
         velY=0;
         initLocY=loc.y;
 
         caveTexture=new Texture[6];
         for (int i=0; i<caveTexture.length; i++){
-            caveTexture[i]=new Texture("fg/fg_" + (i+1) + ".png");
+            caveTexture[i]=new Texture("fg/dirtGrass/fg_" + (i+1) + ".png");
         }
 
         generator=new Random();
         curCaveTexture=caveTexture[generator.nextInt(caveTexture.length)];
         curCaveTexture2=caveTexture[generator.nextInt(caveTexture.length)];
         curCaveTexture3=caveTexture[generator.nextInt(caveTexture.length)];
+
+        monsGenerated=false;
     }
 
     public void draw(SpriteBatch batch){

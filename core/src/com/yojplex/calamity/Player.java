@@ -20,13 +20,18 @@ public class Player {
     private boolean strataChange;
     private Rectangle hitBox;
     private boolean inBattle;
+    private int atk;
+    private int def;
+    private int acc;
+    private int spd;
+    private int luk;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/dGodR_0.png");
         inBattle=false;
 
-        width=200*MyGdxGame.masterScale;
-        height=270*MyGdxGame.masterScale;
+        width=150*MyGdxGame.masterScale;
+        height=220*MyGdxGame.masterScale;
 
         this.loc=loc;
         vel=new Vector2(0, 0);
@@ -39,6 +44,7 @@ public class Player {
         loc.y+=vel.y;
         hitBox.set(loc.x, loc.y, width, height);
 
+        System.out.println(inBattle);
         if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
             if (strataNum>0) {
                 vel.x = -10;
@@ -114,5 +120,13 @@ public class Player {
 
     public void setInBattle(boolean inBattle){
         this.inBattle=inBattle;
+    }
+
+    public boolean getInBattle(){
+        return inBattle;
+    }
+
+    public float getWidth(){
+        return width;
     }
 }

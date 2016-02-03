@@ -19,8 +19,8 @@ public class Background {
     private int height;
 
     public Background(){
-        caveTexture=new Texture("bg.png");
-        caveTexture2=new Texture("bg.png");
+        caveTexture=new Texture("bgDirt.png");
+        caveTexture2=new Texture("bgDirt.png");
         caveTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         caveTexture2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 

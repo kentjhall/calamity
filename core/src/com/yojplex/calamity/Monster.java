@@ -30,9 +30,12 @@ public class Monster {
     private Vector2 vel;
     private float width;
     private float height;
+    private float initLocX;
     private Rectangle hitBox;
     private boolean inBattle;
     private long attackTime;
+    private boolean doAttack;
+    private int attackStage;
 
     public Monster(Type type, int lvl, Vector2 loc){
         switch (type){
@@ -54,8 +57,9 @@ public class Monster {
         spd = lvl*3 - (def + atk);
 
         this.loc=loc;
-        width=250*MyGdxGame.masterScale;
-        height=250*MyGdxGame.masterScale;
+        initLocX=loc.x;
+        width=175*MyGdxGame.masterScale;
+        height=175*MyGdxGame.masterScale;
         vel=new Vector2(0, 0);
         hitBox=new Rectangle(loc.x, loc.y, width, height);
     }
@@ -64,6 +68,7 @@ public class Monster {
         monsStateTime+= Gdx.graphics.getDeltaTime();
         monsFrame=monsAnimation.getKeyFrame(monsStateTime, true);
         batch.draw(monsFrame, loc.x, loc.y, width, height);
+        loc.x+=vel.x;
         loc.y+=vel.y;
         hitBox.set(loc.x, loc.y, width, height);
 
@@ -99,13 +104,28 @@ public class Monster {
 
         if (inBattle){
             if (TimeUtils.timeSinceNanos(attackTime)>TimeUtils.millisToNanos(3000/spd)){
-                attack();
+                doAttack=true;
+                attackStage=1;
                 attackTime=TimeUtils.nanoTime();
             }
+        }
+
+        if (doAttack){
+            attack();
         }
     }
 
     public void attack(){
+        if (loc.x>GameScreen.getPlayer().getLoc().x + GameScreen.getPlayer().getWidth()/2 && attackStage==1) {
+            vel.x = -10;
+        }
+        else if (loc.x<initLocX){
+            attackStage=2;
+            vel.x=10;
+        }
+        else if (loc.x>=initLocX){
+            vel.x=0;
+        }
     }
 
     public void dispose(){

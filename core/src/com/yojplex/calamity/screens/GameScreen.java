@@ -36,6 +36,7 @@ public class GameScreen implements Screen {
     private Foreground fg5;
     private Foreground fg6;
     private static ArrayList<Monster> monsters;
+    private boolean generated;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -58,7 +59,10 @@ public class GameScreen implements Screen {
         bg=new Background();
 
         monsters=new ArrayList<Monster>();
-        monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(1, 2 + 1), new Vector2(500*MyGdxGame.masterScale, Gdx.graphics.getHeight()*0.5f)));
+        genStrataMonsters(Gdx.graphics.getHeight()*0.5f, 1, 2);
+        genStrataMonsters(Gdx.graphics.getHeight()*0.25f, 1, 2);
+        genStrataMonsters(0, 1, 2);
+        generated=false;
     }
     @Override
     public void show() {
@@ -72,11 +76,11 @@ public class GameScreen implements Screen {
 
         batch.begin();
         bg.draw(batch);
-        player.draw(batch);
 
         for (Monster monster:monsters){
             monster.draw(batch);
         }
+        player.draw(batch);
 
         fg1.draw(batch);
         fg2.draw(batch);
@@ -105,6 +109,15 @@ public class GameScreen implements Screen {
         else if (player.getLoc().y>Gdx.graphics.getHeight() * 0.75f && shiftStrata){
             shiftDirection=false;
         }
+
+        if (!shiftStrata && !generated){
+            genStrataMonsters(-Gdx.graphics.getHeight()*0.25f, 1, 2);
+            generated=true;
+        }
+
+        if (shiftStrata && generated){
+            generated=false;
+        }
     }
 
     @Override
@@ -125,6 +138,169 @@ public class GameScreen implements Screen {
     @Override
     public void hide() {
 
+    }
+
+    public static void genStrataMonsters(float locY, int minLvl, int maxLvl){
+        ArrayList<Float> places=new ArrayList<Float>();
+        places.add(125*MyGdxGame.masterScale);
+        places.add(350*MyGdxGame.masterScale);
+        places.add(575*MyGdxGame.masterScale);
+        places.add(800*MyGdxGame.masterScale);
+        places.add(1025*MyGdxGame.masterScale);
+        places.add(1250*MyGdxGame.masterScale);
+        float place;
+
+        int numRand = (ThreadLocalRandom.current().nextInt(18));
+        int numMons = 0;
+        switch (numRand){
+            case 0:
+                numMons=0;
+                break;
+            case 1:
+                numMons=1;
+                break;
+            case 2:
+                numMons=1;
+                break;
+            case 3:
+                numMons=2;
+                break;
+            case 4:
+                numMons=2;
+                break;
+            case 5:
+                numMons=2;
+                break;
+            case 6:
+                numMons=3;
+                break;
+            case 7:
+                numMons=3;
+                break;
+            case 8:
+                numMons=3;
+                break;
+            case 9:
+                numMons=3;
+                break;
+            case 10:
+                numMons=3;
+                break;
+            case 11:
+                numMons=4;
+                break;
+            case 12:
+                numMons=4;
+                break;
+            case 13:
+                numMons=4;
+                break;
+            case 14:
+                numMons=4;
+                break;
+            case 15:
+                numMons=5;
+                break;
+            case 16:
+                numMons=5;
+                break;
+            case 17:
+                numMons=6;
+                break;
+        }
+
+        switch (numMons){
+            case 1:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+            case 2:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(5));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+            case 3:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(5));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(4));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+            case 4:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(5));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(4));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(3));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+            case 5:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(5));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(4));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(3));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(2));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+            case 6:
+                place = places.get(ThreadLocalRandom.current().nextInt(6));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(5));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(4));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(3));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(2));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+
+                place = places.get(ThreadLocalRandom.current().nextInt(1));
+                places.remove(place);
+                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
+                break;
+        }
     }
 
     @Override
