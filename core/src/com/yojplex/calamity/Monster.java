@@ -36,6 +36,9 @@ public class Monster {
     private long attackTime;
     private boolean doAttack;
     private int attackStage;
+    private boolean attackHit;
+    private boolean upAtkTime1;
+    private boolean upAtkTime2;
 
     public Monster(Type type, int lvl, Vector2 loc){
         switch (type){
@@ -51,6 +54,8 @@ public class Monster {
         }
         monsStateTime=0f;
         attackTime= TimeUtils.nanoTime();
+        upAtkTime1=false;
+        upAtkTime2=true;
 
         atk = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 2) + 1);
         def = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 1 - atk) + 1);
@@ -87,25 +92,34 @@ public class Monster {
         if (hitBox.overlaps(GameScreen.getPlayer().getHitBox())){
             GameScreen.getPlayer().setInBattle(true);
             inBattle=true;
+            upAtkTime1=true;
         }
 
         if (loc.x>GameScreen.getPlayer().getLoc().x && Gdx.input.getX()<Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
+                upAtkTime2=true;
             }
         }
         if (loc.x<GameScreen.getPlayer().getLoc().x && Gdx.input.getX()>Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
+                upAtkTime2=true;
             }
+        }
+
+        if (upAtkTime1 && upAtkTime2){
+            attackTime=TimeUtils.nanoTime();
+            upAtkTime2=false;
         }
 
         if (inBattle){
             if (TimeUtils.timeSinceNanos(attackTime)>TimeUtils.millisToNanos(3000/spd)){
                 doAttack=true;
                 attackStage=1;
+                attackHit=true;
                 attackTime=TimeUtils.nanoTime();
             }
         }
@@ -119,12 +133,15 @@ public class Monster {
         if (loc.x>GameScreen.getPlayer().getLoc().x + GameScreen.getPlayer().getWidth()/2 && attackStage==1) {
             vel.x = -10;
         }
-        else if (loc.x<initLocX){
+        else if (loc.x<initLocX && attackHit){
             attackStage=2;
             vel.x=10;
+            GameScreen.getPlayer().setCurHp(GameScreen.getPlayer().getCurHp()-atk);
+            attackHit=false;
         }
         else if (loc.x>=initLocX){
             vel.x=0;
+            doAttack=false;
         }
     }
 
