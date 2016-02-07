@@ -2,12 +2,16 @@ package com.yojplex.calamity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.yojplex.calamity.screens.GameScreen;
+
+import java.util.ArrayList;
 
 /**
  * Created by kenthall on 1/31/16.
@@ -43,7 +47,6 @@ public class Player {
     private boolean monsAtk;
     private boolean recoiling;
 
-
     public Player(Vector2 loc){
         pTexture=new Texture("player/heroR_0.png");
         wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
@@ -65,7 +68,6 @@ public class Player {
         atk=1;
         spd=1;
         def=1;
-
         facingRight=true;
     }
 
@@ -305,6 +307,10 @@ public class Player {
 
     public void takeDmg(int dmg){
         curHp-=(dmg-def);
+        if (curHp<0){
+            curHp=0;
+        }
+        GameScreen.getDropMenu().getPDmgNums().add(dmg - def);
     }
 
     public void dispose(){

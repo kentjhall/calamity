@@ -2,13 +2,14 @@ package com.yojplex.calamity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.yojplex.calamity.screens.GameScreen;
+
+import java.util.ArrayList;
 
 /**
  * Created by kenthall on 1/31/16.
@@ -24,6 +25,11 @@ public class DropMenu {
     private float hsWidth;
     private float hsHeight;
     private float healthPerc;
+    private BitmapFont font;
+    private GlyphLayout pDmgLayout;
+    private GlyphLayout curHpLayout;
+    private ArrayList<Integer> pDmgNums;
+    private ArrayList<Integer> pDmgNumsToRemove;
     private GestureDetector.GestureListener gestureListener;
 
     public DropMenu(){
@@ -39,6 +45,13 @@ public class DropMenu {
 
         gestureListener=new GestureListener();
         Gdx.input.setInputProcessor(new GestureDetector(gestureListener));
+
+        font=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+        pDmgLayout =new GlyphLayout();
+        curHpLayout=new GlyphLayout();
+
+        pDmgNums=new ArrayList<Integer>();
+        pDmgNumsToRemove=new ArrayList<Integer>();
     }
 
     public void draw(SpriteBatch batch){
@@ -64,17 +77,42 @@ public class DropMenu {
         if (GameScreen.getPlayer().getCurHp()>=0) {
             batch.draw(healthSeg, loc.x + 340 * MyGdxGame.masterScale, loc.y + 1700 * MyGdxGame.masterScale, hsWidth, hsHeight);
         }
+
+        for (Integer pDmgNum:pDmgNums){
+            dispPlayerDmg(batch, pDmgNum, 1, 1);
+        }
+        for (Integer integer:pDmgNumsToRemove){
+            pDmgNums.remove(integer.intValue());
+        }
+
+        font.getData().setScale(0.8f);
+        curHpLayout.setText(font, GameScreen.getPlayer().getCurHp() + "/" + GameScreen.getPlayer().getMaxHp());
+        font.draw(batch, curHpLayout, Gdx.graphics.getWidth()/2-curHpLayout.width/2, loc.y + 1770 * MyGdxGame.masterScale);
+    }
+
+    public void dispPlayerDmg(SpriteBatch batch, int dmg, int scaleX, int scaleY){
+        pDmgLayout.setText(font, "" + dmg);
+        font.getData().setScale(scaleX, scaleY);
+        //font.draw(batch, pDmgLayout, Gdx.graphics.getWidth()/2- pDmgLayout.width/2, loc.y + 1770 * MyGdxGame.masterScale);
+    }
+
+    public void dispose(){
+        dropMenu.dispose();
     }
 
     public void setVelY(float velY){
         this.velY=velY;
     }
 
+    public Vector2 getLoc(){
+        return loc;
+    }
+
     public boolean getDrawerUp(){
         return drawerUp;
     }
 
-    public void dispose(){
-        dropMenu.dispose();
+    public ArrayList<Integer> getPDmgNums(){
+        return pDmgNums;
     }
 }

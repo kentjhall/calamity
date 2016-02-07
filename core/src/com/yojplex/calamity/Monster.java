@@ -3,6 +3,7 @@ package com.yojplex.calamity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -83,7 +84,6 @@ public class Monster {
         height=150*MyGdxGame.masterScale;
         vel=new Vector2(0, 0);
         hitBox=new Rectangle(loc.x-width/2f, loc.y, width*2f, height);
-
         setPRInitLocX=true;
     }
 
@@ -232,6 +232,8 @@ public class Monster {
             monsTexture[i].getTexture().dispose();
         }
         monsFrame.getTexture().dispose();
+        healthBar.dispose();
+        healthSeg.dispose();
     }
 
     public int getCurHp(){

@@ -333,7 +333,10 @@ public class GameScreen implements Screen {
         fg4.dispose();
         fg5.dispose();
         fg6.dispose();
-
+        bg.dispose();
+        for (Monster monster:monsters){
+            monster.dispose();
+        }
     }
 
     public static boolean getShiftStrata(){
