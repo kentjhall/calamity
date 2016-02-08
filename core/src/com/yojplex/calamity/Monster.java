@@ -51,6 +51,7 @@ public class Monster {
     private Texture healthBar;
     private Texture healthSeg;
     private float healthPerc;
+    private float initLocY;
 
     public Monster(Type type, int lvl, Vector2 loc){
         switch (type){
@@ -85,6 +86,7 @@ public class Monster {
         vel=new Vector2(0, 0);
         hitBox=new Rectangle(loc.x-width/2f, loc.y, width*2f, height);
         setPRInitLocX=true;
+        initLocY=loc.y;
     }
 
     public void draw(SpriteBatch batch){
@@ -106,6 +108,26 @@ public class Monster {
         }
         else if (vel.y!=0) {
             vel.y = 0;
+            if (GameScreen.getShiftDirection()) {
+                loc.y = initLocY + Gdx.graphics.getHeight() * 0.25f;
+                if (loc.y<=Gdx.graphics.getHeight()) {
+                    initLocY = loc.y;
+                }
+                else{
+                    initLocY=-Gdx.graphics.getHeight() * 0.25f;
+                    loc.y=-Gdx.graphics.getHeight() * 0.25f;
+                }
+            }
+            else {
+                loc.y = initLocY - Gdx.graphics.getHeight() * 0.25f;
+                if (loc.y>=-Gdx.graphics.getHeight() * 0.25f) {
+                    initLocY = loc.y;
+                }
+                else{
+                    initLocY=Gdx.graphics.getHeight();
+                    loc.y=Gdx.graphics.getHeight();
+                }
+            }
         }
 
         if (hitBox.overlaps(GameScreen.getPlayer().getHitBox())){
@@ -212,7 +234,7 @@ public class Monster {
             } else if (loc.x > initLocX && attackHit) {
                 attackStage = 2;
                 vel.x = -10;
-                GameScreen.getPlayer().setCurHp(GameScreen.getPlayer().getCurHp() - atk);
+                GameScreen.getPlayer().takeDmg(atk);
                 attackHit = false;
                 if (setPRStartTime) {
                     pRStartTime = TimeUtils.nanoTime();

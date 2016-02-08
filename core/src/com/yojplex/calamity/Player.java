@@ -1,6 +1,7 @@
 package com.yojplex.calamity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.yojplex.calamity.screens.GameScreen;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -46,6 +48,13 @@ public class Player {
     private float initAtkLocX;
     private boolean monsAtk;
     private boolean recoiling;
+    private BitmapFont font;
+    private BitmapFont font2;
+    private ArrayList<GlyphLayout> dmgLayout;
+    private ArrayList<Integer> dmgNums;
+    private ArrayList<Integer> dmgNumsToRemove;
+    private ArrayList<Float> dmgAlphaNums;
+    private ArrayList<Integer> dmgFadeStage;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/heroR_0.png");
@@ -69,6 +78,15 @@ public class Player {
         spd=1;
         def=1;
         facingRight=true;
+
+        font=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+        font2=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+
+        dmgLayout=new ArrayList<GlyphLayout>();
+        dmgNums =new ArrayList<Integer>();
+        dmgNumsToRemove =new ArrayList<Integer>();
+        dmgAlphaNums =new ArrayList<Float>();
+        dmgFadeStage=new ArrayList<Integer>();
     }
 
     public void draw(SpriteBatch batch){
@@ -90,7 +108,7 @@ public class Player {
         //when input is to move left and not in battle
         if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
             //make sure player does not go behind strata 0
-            if (strataNum>0 && !inBattle) {
+            if (strataNum>0) {
                 //player go left
                 //change texture of player and sword to facing left
                 //update sword pos relative to player
@@ -112,6 +130,10 @@ public class Player {
                 //stop player when conditions not met
                 vel.x=0;
             }
+
+            if (GameScreen.getShiftStrata() && GameScreen.getShiftDirection()){
+                vel.x=0;
+            }
         }
         //when input is to move right and not in battle
         else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
@@ -122,6 +144,10 @@ public class Player {
             pTexture=new Texture("player/heroR_0.png");
             wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
             facingRight=true;
+
+            if (GameScreen.getShiftStrata() && !GameScreen.getShiftDirection()){
+                vel.x=0;
+            }
         }
         else{
             //stop player when conditions not met
@@ -210,6 +236,47 @@ public class Player {
             attackStage = 0;
             doAttack = false;
         }
+
+        for (int i=0; i<dmgNums.size(); i++){
+            if (dmgAlphaNums.size()< dmgNums.size()) {
+                dmgAlphaNums.add(i, 0f);
+                dmgFadeStage.add(i, 1);
+                dmgLayout.add(i, new GlyphLayout());
+            }
+            dmgLayout.get(i).setText(font, "" + dmgNums.get(i), new Color(1, 1, 1, dmgAlphaNums.get(i)), new GlyphLayout(font, "" + dmgNums.get(i)).width, 0, false);
+            if (dmgAlphaNums.get(i)<1 && dmgFadeStage.get(i)==1) {
+                dmgAlphaNums.set(i, dmgAlphaNums.get(i)+0.05f);
+            }
+            else if (dmgAlphaNums.get(i)>=1){
+                dmgFadeStage.set(i, 2);
+            }
+
+            if (dmgAlphaNums.get(i)>0 && dmgFadeStage.get(i)==2) {
+                dmgAlphaNums.set(i, dmgAlphaNums.get(i)-0.05f);
+            }
+            else if (dmgAlphaNums.get(i)<=0){
+                dmgFadeStage.set(i, 3);
+            }
+
+            if (dmgFadeStage.get(i)==3){
+                dmgAlphaNums.set(i, 0f);
+                dmgNumsToRemove.add(i);
+            }
+
+            if (dmgFadeStage.get(i)==1) {
+                font.draw(batch, dmgLayout.get(i), (loc.x + width/2) - dmgLayout.get(i).width/2, loc.y + 225 * MyGdxGame.masterScale + dmgAlphaNums.get(i) * 100f * MyGdxGame.masterScale);
+            }
+            else{
+                font.draw(batch, dmgLayout.get(i), (loc.x + width / 2) - dmgLayout.get(i).width / 2, loc.y + 225 * MyGdxGame.masterScale + 100f * MyGdxGame.masterScale);
+            }
+        }
+        for (Integer integer: dmgNumsToRemove){
+            dmgNums.remove(integer.intValue());
+            dmgAlphaNums.remove(integer.intValue());
+            dmgFadeStage.remove(integer.intValue());
+            dmgLayout.remove(integer.intValue());
+        }
+        dmgNumsToRemove.clear();
     }
 
     public void attack(){
@@ -310,7 +377,7 @@ public class Player {
         if (curHp<0){
             curHp=0;
         }
-        GameScreen.getDropMenu().getPDmgNums().add(dmg - def);
+        dmgNums.add(dmg - def);
     }
 
     public void dispose(){

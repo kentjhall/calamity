@@ -26,10 +26,7 @@ public class DropMenu {
     private float hsHeight;
     private float healthPerc;
     private BitmapFont font;
-    private GlyphLayout pDmgLayout;
     private GlyphLayout curHpLayout;
-    private ArrayList<Integer> pDmgNums;
-    private ArrayList<Integer> pDmgNumsToRemove;
     private GestureDetector.GestureListener gestureListener;
 
     public DropMenu(){
@@ -46,12 +43,8 @@ public class DropMenu {
         gestureListener=new GestureListener();
         Gdx.input.setInputProcessor(new GestureDetector(gestureListener));
 
-        font=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
-        pDmgLayout =new GlyphLayout();
+        font=new BitmapFont(Gdx.files.internal("fonts/menuFont/font.fnt"), Gdx.files.internal("fonts/menuFont/font.png"), false);
         curHpLayout=new GlyphLayout();
-
-        pDmgNums=new ArrayList<Integer>();
-        pDmgNumsToRemove=new ArrayList<Integer>();
     }
 
     public void draw(SpriteBatch batch){
@@ -78,22 +71,9 @@ public class DropMenu {
             batch.draw(healthSeg, loc.x + 340 * MyGdxGame.masterScale, loc.y + 1700 * MyGdxGame.masterScale, hsWidth, hsHeight);
         }
 
-        for (Integer pDmgNum:pDmgNums){
-            dispPlayerDmg(batch, pDmgNum, 1, 1);
-        }
-        for (Integer integer:pDmgNumsToRemove){
-            pDmgNums.remove(integer.intValue());
-        }
-
         font.getData().setScale(0.8f);
         curHpLayout.setText(font, GameScreen.getPlayer().getCurHp() + "/" + GameScreen.getPlayer().getMaxHp());
         font.draw(batch, curHpLayout, Gdx.graphics.getWidth()/2-curHpLayout.width/2, loc.y + 1770 * MyGdxGame.masterScale);
-    }
-
-    public void dispPlayerDmg(SpriteBatch batch, int dmg, int scaleX, int scaleY){
-        pDmgLayout.setText(font, "" + dmg);
-        font.getData().setScale(scaleX, scaleY);
-        //font.draw(batch, pDmgLayout, Gdx.graphics.getWidth()/2- pDmgLayout.width/2, loc.y + 1770 * MyGdxGame.masterScale);
     }
 
     public void dispose(){
@@ -110,9 +90,5 @@ public class DropMenu {
 
     public boolean getDrawerUp(){
         return drawerUp;
-    }
-
-    public ArrayList<Integer> getPDmgNums(){
-        return pDmgNums;
     }
 }

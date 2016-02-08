@@ -42,7 +42,7 @@ public class GameScreen implements Screen {
         this.batch=batch;
 
         player=new Player(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
-        shiftSpeed=20*MyGdxGame.masterScale;
+        shiftSpeed=30*MyGdxGame.masterScale;
 
         dropMenu=new DropMenu();
         fg1=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
@@ -129,8 +129,8 @@ public class GameScreen implements Screen {
         }
 
         if (!shiftStrata && !generated && !genStrata.contains(player.getStrataNum())){
-            genStrataMonsters(-Gdx.graphics.getHeight()*0.25f, 1, 2);
-            genStrataMonsters(Gdx.graphics.getHeight(), 1, 2);
+            genStrataMonsters(-Gdx.graphics.getHeight()*0.25f, 2, 2);
+            genStrataMonsters(Gdx.graphics.getHeight(), 2, 2);
             genStrata.add(player.getStrataNum());
             generated=true;
         }
@@ -162,12 +162,12 @@ public class GameScreen implements Screen {
 
     public static void genStrataMonsters(float locY, int minLvl, int maxLvl){
         ArrayList<Float> places=new ArrayList<Float>();
-        places.add(125*MyGdxGame.masterScale);
-        places.add(325*MyGdxGame.masterScale);
-        places.add(525*MyGdxGame.masterScale);
-        places.add(725*MyGdxGame.masterScale);
+        places.add(225*MyGdxGame.masterScale);
+        places.add(400*MyGdxGame.masterScale);
+        places.add(575*MyGdxGame.masterScale);
+        places.add(750*MyGdxGame.masterScale);
         places.add(925*MyGdxGame.masterScale);
-        places.add(1125*MyGdxGame.masterScale);
+        places.add(1100*MyGdxGame.masterScale);
         float place;
 
         int numRand = (ThreadLocalRandom.current().nextInt(18));
