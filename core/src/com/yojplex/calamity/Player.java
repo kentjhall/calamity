@@ -131,6 +131,7 @@ public class Player {
                 vel.x=0;
             }
 
+            //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && GameScreen.getShiftDirection()){
                 vel.x=0;
             }
@@ -145,6 +146,7 @@ public class Player {
             wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
             facingRight=true;
 
+            //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && !GameScreen.getShiftDirection()){
                 vel.x=0;
             }
@@ -200,7 +202,6 @@ public class Player {
             else{
                 strataNum--;
             }
-            GameScreen.setMonsOnStrata(false);
             strataChange=false;
         }
 

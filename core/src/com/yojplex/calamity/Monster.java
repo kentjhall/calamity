@@ -110,23 +110,11 @@ public class Monster {
             vel.y = 0;
             if (GameScreen.getShiftDirection()) {
                 loc.y = initLocY + Gdx.graphics.getHeight() * 0.25f;
-                if (loc.y<=Gdx.graphics.getHeight()) {
-                    initLocY = loc.y;
-                }
-                else{
-                    initLocY=-Gdx.graphics.getHeight() * 0.25f;
-                    loc.y=-Gdx.graphics.getHeight() * 0.25f;
-                }
+                initLocY = loc.y;
             }
             else {
                 loc.y = initLocY - Gdx.graphics.getHeight() * 0.25f;
-                if (loc.y>=-Gdx.graphics.getHeight() * 0.25f) {
-                    initLocY = loc.y;
-                }
-                else{
-                    initLocY=Gdx.graphics.getHeight();
-                    loc.y=Gdx.graphics.getHeight();
-                }
+                initLocY = loc.y;
             }
         }
 

@@ -6,18 +6,16 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.yojplex.calamity.screens.GameScreen;
 
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by kenthall on 2/1/16.
  */
 public class Foreground {
-    private Texture[] caveTexture;
-    private Texture curCaveTexture;
-    private Texture curCaveTexture2;
-    private Texture curCaveTexture3;
+    private Texture[] fgTexture;
+    private Texture curFgTexture;
+    private Texture curFgTexture2;
+    private Texture curFgTexture3;
     private Random generator;
     private Vector2 loc;
     private float width;
@@ -33,23 +31,30 @@ public class Foreground {
         velY=0;
         initLocY=loc.y;
 
-        caveTexture=new Texture[6];
-        for (int i=0; i<caveTexture.length; i++){
-            caveTexture[i]=new Texture("fg/dirtGrass/fg_" + (i+1) + ".png");
+        fgTexture =new Texture[6];
+        if (GameScreen.getPlayer().getStrataNum()==0 && loc.y>=Gdx.graphics.getHeight() * 0.75f){
+            for (int i=0; i<fgTexture.length; i++){
+                fgTexture[i]=new Texture("fg/skyGrass/fg_" + (i+1) + ".png");
+            }
+        }
+        else {
+            for (int i = 0; i < fgTexture.length; i++) {
+                fgTexture[i] = new Texture("fg/dirtGrass/fg_" + (i + 1) + ".png");
+            }
         }
 
         generator=new Random();
-        curCaveTexture=caveTexture[generator.nextInt(caveTexture.length)];
-        curCaveTexture2=caveTexture[generator.nextInt(caveTexture.length)];
-        curCaveTexture3=caveTexture[generator.nextInt(caveTexture.length)];
+        curFgTexture = fgTexture[generator.nextInt(fgTexture.length)];
+        curFgTexture2 = fgTexture[generator.nextInt(fgTexture.length)];
+        curFgTexture3 = fgTexture[generator.nextInt(fgTexture.length)];
 
         monsGenerated=false;
     }
 
     public void draw(SpriteBatch batch){
-        batch.draw(curCaveTexture, loc.x, loc.y, width, height);
-        batch.draw(curCaveTexture2, loc.x+width, loc.y, width, height);
-        batch.draw(curCaveTexture3, loc.x+width*2, loc.y, width, height);
+        batch.draw(curFgTexture, loc.x, loc.y, width, height);
+        batch.draw(curFgTexture2, loc.x+width, loc.y, width, height);
+        batch.draw(curFgTexture3, loc.x+width*2, loc.y, width, height);
         loc.y+=velY;
 
         if (GameScreen.getShiftStrata()){
@@ -86,8 +91,8 @@ public class Foreground {
     }
 
     public void dispose(){
-        for (int i=0; i<caveTexture.length; i++){
-            caveTexture[i].dispose();
+        for (int i=0; i< fgTexture.length; i++){
+            fgTexture[i].dispose();
         }
     }
 

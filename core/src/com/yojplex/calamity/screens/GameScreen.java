@@ -32,11 +32,11 @@ public class GameScreen implements Screen {
     private Foreground fg5;
     private Foreground fg6;
     private static ArrayList<Monster> monsters;
-    private ArrayList<Integer> monstersToRemove;
+    private ArrayList<Integer> monsKillToRemove;
+    private ArrayList<Integer> monsHeightToRemove;
     private boolean generated;
-    private ArrayList<Integer> genStrata;
-    private ArrayList<Integer> genStrataToRemove;
-    private static boolean monsOnStrata;
+    private ArrayList<Monster> monsNegStrata;
+    private ArrayList<Monster> monsTopStrata;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -54,14 +54,14 @@ public class GameScreen implements Screen {
         bg=new Background();
 
         monsters=new ArrayList<Monster>();
-        monstersToRemove=new ArrayList<Integer>();
+        monsKillToRemove =new ArrayList<Integer>();
+        monsHeightToRemove=new ArrayList<Integer>();
         genStrataMonsters(Gdx.graphics.getHeight()*0.5f, 1, 1);
         genStrataMonsters(Gdx.graphics.getHeight()*0.25f, 1, 2);
         genStrataMonsters(0, 2, 2);
         generated=false;
-        genStrata=new ArrayList<Integer>();
-        genStrataToRemove=new ArrayList<Integer>();
-        monsOnStrata=false;
+        monsNegStrata=new ArrayList<Monster>();
+        monsTopStrata=new ArrayList<Monster>();
     }
     @Override
     public void show() {
@@ -80,27 +80,25 @@ public class GameScreen implements Screen {
             monster.draw(batch);
             if (monster.getCurHp()<=0){
                 Integer integer = monsters.indexOf(monster);
-                monstersToRemove.add(integer);
+                monsKillToRemove.add(integer);
                 player.setInBattle(false);
             }
-
-            if (monster.getLoc().y<player.getLoc().y+10*MyGdxGame.masterScale && monster.getLoc().y>player.getLoc().y-10*MyGdxGame.masterScale){
-                monsOnStrata=true;
+            if (monster.getLoc().y>=Gdx.graphics.getHeight()*1.25){
+                Integer integer = monsters.indexOf(monster);
+                monsHeightToRemove.add(integer);
             }
+            checkMonsOnStrata(monster);
         }
-        for (Integer integer:monstersToRemove){
+        for (Integer integer: monsKillToRemove){
             monsters.remove(integer.intValue());
         }
-        monstersToRemove.clear();
-
-        if (!monsOnStrata && genStrata.contains(player.getStrataNum()+1)){
-            Integer integer=genStrata.indexOf(player.getStrataNum()+1);
-            genStrataToRemove.add(integer);
+        for (Integer integer: monsHeightToRemove){
+            if (monsters.size()>integer.intValue()) {
+                monsters.remove(integer.intValue());
+            }
         }
-        for (Integer integer:genStrataToRemove){
-            genStrata.remove(integer.intValue());
-        }
-        genStrataToRemove.clear();
+        monsKillToRemove.clear();
+        monsHeightToRemove.clear();
 
         player.draw(batch);
 
@@ -128,10 +126,13 @@ public class GameScreen implements Screen {
             shiftDirection=false;
         }
 
-        if (!shiftStrata && !generated && !genStrata.contains(player.getStrataNum())){
-            genStrataMonsters(-Gdx.graphics.getHeight()*0.25f, 2, 2);
-            genStrataMonsters(Gdx.graphics.getHeight(), 2, 2);
-            genStrata.add(player.getStrataNum());
+        if (!shiftStrata && !generated){
+            if (monsNegStrata.size()==0) {
+                genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, 2, 2);
+            }
+            if (monsTopStrata.size()==0) {
+                genStrataMonsters(Gdx.graphics.getHeight(), 2, 2);
+            }
             generated=true;
         }
 
@@ -162,12 +163,12 @@ public class GameScreen implements Screen {
 
     public static void genStrataMonsters(float locY, int minLvl, int maxLvl){
         ArrayList<Float> places=new ArrayList<Float>();
-        places.add(225*MyGdxGame.masterScale);
-        places.add(400*MyGdxGame.masterScale);
-        places.add(575*MyGdxGame.masterScale);
-        places.add(750*MyGdxGame.masterScale);
-        places.add(925*MyGdxGame.masterScale);
-        places.add(1100*MyGdxGame.masterScale);
+        places.add(225 * MyGdxGame.masterScale);
+        places.add(400 * MyGdxGame.masterScale);
+        places.add(575 * MyGdxGame.masterScale);
+        places.add(750 * MyGdxGame.masterScale);
+        places.add(925 * MyGdxGame.masterScale);
+        places.add(1100 * MyGdxGame.masterScale);
         float place;
 
         int numRand = (ThreadLocalRandom.current().nextInt(18));
@@ -323,6 +324,25 @@ public class GameScreen implements Screen {
         }
     }
 
+    public void checkMonsOnStrata(Monster monster){
+        if (Math.abs(monster.getLoc().y - Gdx.graphics.getHeight())<10*MyGdxGame.masterScale){
+            if (!monsTopStrata.contains(monster)) {
+                monsTopStrata.add(monster);
+            }
+        }
+        else if (monsTopStrata.contains(monster)){
+            monsTopStrata.remove(monster);
+        }
+        if (Math.abs(monster.getLoc().y - -Gdx.graphics.getHeight()*0.25)<10*MyGdxGame.masterScale){
+            if (!monsNegStrata.contains(monster)) {
+                monsNegStrata.add(monster);
+            }
+        }
+        else if (monsNegStrata.contains(monster)){
+            monsNegStrata.remove(monster);
+        }
+    }
+
     @Override
     public void dispose() {
         player.dispose();
@@ -361,9 +381,5 @@ public class GameScreen implements Screen {
 
     public static ArrayList<Monster> getMonsters() {
         return monsters;
-    }
-
-    public static void setMonsOnStrata(boolean monsOnStrata1){
-        monsOnStrata=monsOnStrata1;
     }
 }

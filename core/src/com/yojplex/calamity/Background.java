@@ -24,11 +24,11 @@ public class Background {
         caveTexture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         caveTexture2.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
-        loc=new Vector2(0, 0);
-        loc2=new Vector2(0, -Gdx.graphics.getHeight());
+        loc=new Vector2(0, -Gdx.graphics.getHeight()*0.25f);
+        loc2=new Vector2(0, -Gdx.graphics.getHeight()*1.25f);
         velY=0;
-        width=(int)(1440*MyGdxGame.masterScale);
-        height=(int)(2560*MyGdxGame.masterScale);
+        width=Gdx.graphics.getWidth();
+        height=Gdx.graphics.getHeight();
     }
 
     public void draw(SpriteBatch batch){
