@@ -2,6 +2,8 @@ package com.yojplex.calamity.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.yojplex.calamity.Background;
@@ -35,8 +37,13 @@ public class GameScreen implements Screen {
     private ArrayList<Integer> monsKillToRemove;
     private ArrayList<Integer> monsHeightToRemove;
     private boolean generated;
+    private boolean changeFgSky;
+    private boolean changeFgDirt;
     private ArrayList<Monster> monsNegStrata;
     private ArrayList<Monster> monsTopStrata;
+    ArrayList<Monster.Type> monsTypes;
+    private BitmapFont strataFont;
+    private GlyphLayout strataFontLayout;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -45,23 +52,28 @@ public class GameScreen implements Screen {
         shiftSpeed=30*MyGdxGame.masterScale;
 
         dropMenu=new DropMenu();
-        fg1=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
-        fg2=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.5f));
-        fg3=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.25f));
-        fg4=new Foreground(new Vector2(0, -1*Gdx.graphics.getHeight()*0.25f));
-        fg5=new Foreground(new Vector2(0, Gdx.graphics.getHeight()));
-        fg6=new Foreground(new Vector2(0, 0));
+        fg1 = new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f), Foreground.Type.SKY);
+        fg2=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.5f), Foreground.Type.DIRT);
+        fg3=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.25f), Foreground.Type.DIRT);
+        fg4=new Foreground(new Vector2(0, -Gdx.graphics.getHeight()*0.25f), Foreground.Type.DIRT);
+        fg5=new Foreground(new Vector2(0, Gdx.graphics.getHeight()), Foreground.Type.DIRT);
+        fg6=new Foreground(new Vector2(0, 0), Foreground.Type.DIRT);
         bg=new Background();
 
         monsters=new ArrayList<Monster>();
         monsKillToRemove =new ArrayList<Integer>();
         monsHeightToRemove=new ArrayList<Integer>();
-        genStrataMonsters(Gdx.graphics.getHeight()*0.5f, 1, 1);
-        genStrataMonsters(Gdx.graphics.getHeight()*0.25f, 1, 2);
-        genStrataMonsters(0, 2, 2);
+        monsTypes=new ArrayList<Monster.Type>();
+        monsTypes.add(Monster.Type.MUSHY);
+        genStrataMonsters(Gdx.graphics.getHeight()*0.5f, 1, 1, monsTypes);
+        genStrataMonsters(Gdx.graphics.getHeight() * 0.25f, 1, 2, monsTypes);
+        genStrataMonsters(0, 2, 2, monsTypes);
         generated=false;
         monsNegStrata=new ArrayList<Monster>();
         monsTopStrata=new ArrayList<Monster>();
+
+        strataFont=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+        strataFontLayout=new GlyphLayout();
     }
     @Override
     public void show() {
@@ -76,6 +88,8 @@ public class GameScreen implements Screen {
         batch.begin();
         bg.draw(batch);
 
+        strataFontLayout.setText(strataFont, "STRATA: " + player.getStrataNum());
+
         for (Monster monster:monsters){
             monster.draw(batch);
             if (monster.getCurHp()<=0){
@@ -83,7 +97,7 @@ public class GameScreen implements Screen {
                 monsKillToRemove.add(integer);
                 player.setInBattle(false);
             }
-            if (monster.getLoc().y>=Gdx.graphics.getHeight()*1.25){
+            if (monster.getLoc().y>=Gdx.graphics.getHeight()*1.5){
                 Integer integer = monsters.indexOf(monster);
                 monsHeightToRemove.add(integer);
             }
@@ -101,6 +115,20 @@ public class GameScreen implements Screen {
         monsHeightToRemove.clear();
 
         player.draw(batch);
+        if (player.getStrataNum()==1 && shiftStrata && !shiftDirection && changeFgSky){
+            fg1.changeType(Foreground.Type.SKY);
+            changeFgSky=false;
+        }
+        else if (fg1.getType()==Foreground.Type.SKY && player.getStrataNum()!=1 && player.getStrataNum()!=0 && !shiftStrata && changeFgDirt){
+            fg1.changeType(Foreground.Type.DIRT);
+            changeFgDirt=false;
+        }
+        if (shiftStrata && !changeFgDirt){
+            changeFgDirt=true;
+        }
+        if (!shiftStrata && !changeFgSky){
+            changeFgSky=true;
+        }
 
         fg1.draw(batch);
         fg2.draw(batch);
@@ -127,11 +155,17 @@ public class GameScreen implements Screen {
         }
 
         if (!shiftStrata && !generated){
+            monsTypes.add(Monster.Type.SLIMELICK);
             if (monsNegStrata.size()==0) {
-                genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, 2, 2);
+                genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, 2, 2, monsTypes);
             }
             if (monsTopStrata.size()==0) {
-                genStrataMonsters(Gdx.graphics.getHeight(), 2, 2);
+                if (!shiftDirection && player.getStrataNum()>2) {
+                    genStrataMonsters(Gdx.graphics.getHeight(), 2, 2, monsTypes);
+                }
+                if (shiftDirection && player.getStrataNum()>1) {
+                    genStrataMonsters(Gdx.graphics.getHeight(), 2, 2, monsTypes);
+                }
             }
             generated=true;
         }
@@ -161,7 +195,7 @@ public class GameScreen implements Screen {
 
     }
 
-    public static void genStrataMonsters(float locY, int minLvl, int maxLvl){
+    public static void genStrataMonsters(float locY, int minLvl, int maxLvl, ArrayList<Monster.Type> monsTypes){
         ArrayList<Float> places=new ArrayList<Float>();
         places.add(225 * MyGdxGame.masterScale);
         places.add(400 * MyGdxGame.masterScale);
@@ -170,6 +204,7 @@ public class GameScreen implements Screen {
         places.add(925 * MyGdxGame.masterScale);
         places.add(1100 * MyGdxGame.masterScale);
         float place;
+        Monster.Type monsType;
 
         int numRand = (ThreadLocalRandom.current().nextInt(18));
         int numMons = 0;
@@ -230,97 +265,11 @@ public class GameScreen implements Screen {
                 break;
         }
 
-        switch (numMons){
-            case 1:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
-            case 2:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(5));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
-            case 3:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(5));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(4));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
-            case 4:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(5));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(4));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(3));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
-            case 5:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(5));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(4));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(3));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(2));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
-            case 6:
-                place = places.get(ThreadLocalRandom.current().nextInt(6));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(5));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(4));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(3));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(2));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-
-                place = places.get(ThreadLocalRandom.current().nextInt(1));
-                places.remove(place);
-                monsters.add(new Monster(Monster.Type.MUSHY, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
-                break;
+        for (int i=1; i<=numMons; i++){
+            place = places.get(ThreadLocalRandom.current().nextInt(6-(i-1)));
+            monsType=monsTypes.get(ThreadLocalRandom.current().nextInt(monsTypes.size()));
+            places.remove(place);
+            monsters.add(new Monster(monsType, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
         }
     }
 
@@ -333,6 +282,7 @@ public class GameScreen implements Screen {
         else if (monsTopStrata.contains(monster)){
             monsTopStrata.remove(monster);
         }
+
         if (Math.abs(monster.getLoc().y - -Gdx.graphics.getHeight()*0.25)<10*MyGdxGame.masterScale){
             if (!monsNegStrata.contains(monster)) {
                 monsNegStrata.add(monster);

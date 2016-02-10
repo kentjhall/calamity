@@ -33,7 +33,7 @@ public class DropMenu {
         dropMenu=new Texture("dropMenu1.png");
         healthSeg=new Texture("healthSeg.png");
 
-        loc=new Vector2(0, -115*MyGdxGame.masterScale);
+        loc=new Vector2(0, -125*MyGdxGame.masterScale);
         width=dropMenu.getTextureData().getWidth()*10*MyGdxGame.masterScale;
         height=dropMenu.getTextureData().getHeight()*10*MyGdxGame.masterScale;
         hsWidth=width;
@@ -57,9 +57,9 @@ public class DropMenu {
             drawerUp=false;
             dropMenu=new Texture("dropMenu2.png");
         }
-        if (velY>0 && loc.y>=-115*MyGdxGame.masterScale){
+        if (velY>0 && loc.y>=-125*MyGdxGame.masterScale){
             velY=0;
-            loc.y=-115*MyGdxGame.masterScale;
+            loc.y=-125*MyGdxGame.masterScale;
             drawerUp=true;
             dropMenu=new Texture("dropMenu1.png");
         }

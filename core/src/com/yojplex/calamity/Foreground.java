@@ -12,6 +12,10 @@ import java.util.Random;
  * Created by kenthall on 2/1/16.
  */
 public class Foreground {
+    public enum Type{
+        SKY, DIRT
+    }
+    private Type type;
     private Texture[] fgTexture;
     private Texture curFgTexture;
     private Texture curFgTexture2;
@@ -22,9 +26,8 @@ public class Foreground {
     private float height;
     private float velY;
     private float initLocY;
-    private boolean monsGenerated;
 
-    public Foreground(Vector2 loc){
+    public Foreground(Vector2 loc, Type type){
         this.loc=loc;
         width=Gdx.graphics.getWidth()*0.4f;
         height=Gdx.graphics.getHeight()*0.25f;
@@ -32,23 +35,9 @@ public class Foreground {
         initLocY=loc.y;
 
         fgTexture =new Texture[6];
-        if (GameScreen.getPlayer().getStrataNum()==0 && loc.y>=Gdx.graphics.getHeight() * 0.75f){
-            for (int i=0; i<fgTexture.length; i++){
-                fgTexture[i]=new Texture("fg/skyGrass/fg_" + (i+1) + ".png");
-            }
-        }
-        else {
-            for (int i = 0; i < fgTexture.length; i++) {
-                fgTexture[i] = new Texture("fg/dirtGrass/fg_" + (i + 1) + ".png");
-            }
-        }
 
         generator=new Random();
-        curFgTexture = fgTexture[generator.nextInt(fgTexture.length)];
-        curFgTexture2 = fgTexture[generator.nextInt(fgTexture.length)];
-        curFgTexture3 = fgTexture[generator.nextInt(fgTexture.length)];
-
-        monsGenerated=false;
+        changeType(type);
     }
 
     public void draw(SpriteBatch batch){
@@ -90,6 +79,25 @@ public class Foreground {
         }
     }
 
+    public void changeType(Type type){
+        this.type=type;
+        switch(type){
+            case SKY:
+                for (int i=0; i<fgTexture.length; i++){
+                    fgTexture[i]=new Texture("fg/grass/fg_" + (i+1) + ".png");
+                }
+                break;
+            case DIRT:
+                for (int i = 0; i < fgTexture.length; i++) {
+                    fgTexture[i] = new Texture("fg/dirtGrass/fg_" + (i + 1) + ".png");
+                }
+                break;
+        }
+        curFgTexture = fgTexture[generator.nextInt(fgTexture.length)];
+        curFgTexture2 = fgTexture[generator.nextInt(fgTexture.length)];
+        curFgTexture3 = fgTexture[generator.nextInt(fgTexture.length)];
+    }
+
     public void dispose(){
         for (int i=0; i< fgTexture.length; i++){
             fgTexture[i].dispose();
@@ -98,5 +106,13 @@ public class Foreground {
 
     public Vector2 getLoc(){
         return loc;
+    }
+
+    public Type getType(){
+        return type;
+    }
+
+    public float getInitLocY(){
+        return initLocY;
     }
 }

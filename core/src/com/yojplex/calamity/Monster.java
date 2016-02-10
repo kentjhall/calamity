@@ -63,6 +63,11 @@ public class Monster {
                 monsAnimation=new Animation(1f, monsTexture[0], monsTexture[1]);
                 break;
             case SLIMELICK:
+                monsTexture=new TextureRegion[2];
+                for (int i=0; i<monsTexture.length; i++){
+                    monsTexture[i]=new TextureRegion(new Texture("monsters/slimelick/slimelick_"+ (i+1) +".png"));
+                }
+                monsAnimation=new Animation(0.7f, monsTexture[0], monsTexture[1]);
                 break;
         }
         monsStateTime=0f;
@@ -81,8 +86,8 @@ public class Monster {
 
         this.loc=loc;
         initLocX=loc.x;
-        width=150*MyGdxGame.masterScale;
-        height=150*MyGdxGame.masterScale;
+        width=13*monsTexture[0].getTexture().getTextureData().getWidth()*MyGdxGame.masterScale;
+        height=13*monsTexture[0].getTexture().getTextureData().getHeight()*MyGdxGame.masterScale;
         vel=new Vector2(0, 0);
         hitBox=new Rectangle(loc.x-width/2f, loc.y, width*2f, height);
         setPRInitLocX=true;
