@@ -20,6 +20,7 @@ public class Monster {
     public enum Type {
         MUSHY, SLIMELICK
     }
+    private Type type;
     private Animation monsAnimation;
     private TextureRegion[] monsTexture;
     private TextureRegion monsFrame;
@@ -52,20 +53,24 @@ public class Monster {
     private Texture healthSeg;
     private float healthPerc;
     private float initLocY;
+    private float faceDirection;
+    private boolean changeDir;
+    private boolean dirSwitched;
+    private int expProvided;
 
     public Monster(Type type, int lvl, Vector2 loc){
         switch (type){
             case MUSHY:
                 monsTexture=new TextureRegion[2];
                 for (int i=0; i<monsTexture.length; i++){
-                    monsTexture[i]=new TextureRegion(new Texture("monsters/mushy/mushy_"+ (i+1) +".png"));
+                    monsTexture[i]=new TextureRegion(new Texture("monsters/mushy/mushy_"+ (i+1) + ".png"));
                 }
                 monsAnimation=new Animation(1f, monsTexture[0], monsTexture[1]);
                 break;
             case SLIMELICK:
                 monsTexture=new TextureRegion[2];
                 for (int i=0; i<monsTexture.length; i++){
-                    monsTexture[i]=new TextureRegion(new Texture("monsters/slimelick/slimelick_"+ (i+1) +".png"));
+                    monsTexture[i]=new TextureRegion(new Texture("monsters/slimelick/slimelick_"+ (i+1) + ".png"));
                 }
                 monsAnimation=new Animation(0.7f, monsTexture[0], monsTexture[1]);
                 break;
@@ -74,6 +79,7 @@ public class Monster {
         attackTime= TimeUtils.nanoTime();
         upAtkTime1=false;
         upAtkTime2=true;
+        this.type=type;
 
         atk = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 2) + 1);
         dur = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 1 - atk) + 1);
@@ -81,8 +87,9 @@ public class Monster {
 
         maxHp = dur*3;
         curHp=maxHp;
+        expProvided=lvl*5;
         healthBar=new Texture("healthBar.png");
-        healthSeg=new Texture("healthSeg.png");
+        healthSeg=new Texture("barFill.png");
 
         this.loc=loc;
         initLocX=loc.x;
@@ -92,6 +99,7 @@ public class Monster {
         hitBox=new Rectangle(loc.x-width/2f, loc.y, width*2f, height);
         setPRInitLocX=true;
         initLocY=loc.y;
+        changeDir=false;
     }
 
     public void draw(SpriteBatch batch){
@@ -102,6 +110,17 @@ public class Monster {
         loc.y+=vel.y;
         hitBox.set(loc.x - width / 2f, loc.y, width * 2f, height);
         healthPerc=Math.round((float)curHp/(float)maxHp*100)/100f;
+
+        if (GameScreen.getMonsTopStrata().contains(this) && !dirSwitched){
+            changeDir=true;
+        }
+        if (changeDir){
+            for (TextureRegion monsText:monsTexture){
+                monsText.flip(true, false);
+            }
+            changeDir=false;
+            dirSwitched=true;
+        }
 
         if (GameScreen.getShiftStrata()){
             if (GameScreen.getShiftDirection()) {
@@ -261,5 +280,9 @@ public class Monster {
 
     public Rectangle getHitBox(){
         return hitBox;
+    }
+
+    public int getExpProvided(){
+        return expProvided;
     }
 }

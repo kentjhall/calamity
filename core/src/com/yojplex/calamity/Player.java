@@ -40,6 +40,7 @@ public class Player {
     private int curHp;
     private int lvl;
     private int exp;
+    private int expReqLevel;
     private boolean doAttack;
     private int attackStage;
     private boolean sigAttackHit;
@@ -49,12 +50,12 @@ public class Player {
     private boolean monsAtk;
     private boolean recoiling;
     private BitmapFont font;
-    private BitmapFont font2;
     private ArrayList<GlyphLayout> dmgLayout;
     private ArrayList<Integer> dmgNums;
     private ArrayList<Integer> dmgNumsToRemove;
     private ArrayList<Float> dmgAlphaNums;
     private ArrayList<Integer> dmgFadeStage;
+    private long healTime;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/heroR_0.png");
@@ -72,15 +73,17 @@ public class Player {
         vel=new Vector2(0, 0);
         hitBox=new Rectangle(loc.x, loc.y, width, height);
         lvl = 1;
+        exp=0;
         maxHp=lvl*5;
         curHp=maxHp;
         atk=1;
         spd=1;
         def=1;
         facingRight=true;
+        healTime=TimeUtils.nanoTime();
 
         font=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
-        font2=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+        font.getData().setScale(MyGdxGame.masterScale);
 
         dmgLayout=new ArrayList<GlyphLayout>();
         dmgNums =new ArrayList<Integer>();
@@ -91,6 +94,21 @@ public class Player {
 
     public void draw(SpriteBatch batch){
         batch.draw(pTexture, loc.x, loc.y, width, height);
+
+        maxHp=lvl*5;
+        expReqLevel=lvl*20;
+        if (exp>=expReqLevel){
+            lvl++;
+            exp=0;
+        }
+
+        if (TimeUtils.timeSinceNanos(healTime)>TimeUtils.millisToNanos(2000)){
+            if (curHp<maxHp){
+                curHp++;
+            }
+            healTime=TimeUtils.nanoTime();
+        }
+
         if (facingRight) {
             batch.draw(wTexture, wLoc.x, wLoc.y - 120 * MyGdxGame.masterScale, 0, wHeight, wWidth, wHeight, 1, 1, wRotAngle, true);
         }
@@ -165,13 +183,13 @@ public class Player {
         }
 
         //wraps player to other side and down strata if move right off screen
-        if (loc.x>Gdx.graphics.getWidth()){
+        if (loc.x>Gdx.graphics.getWidth() && !monsAtk){
             loc.x=-width;
             loc.y=Gdx.graphics.getHeight()*0.5f;
         }
 
         //wraps player to other side and up strata if move left off screen
-        if (loc.x<-width){
+        if (loc.x<-width && !monsAtk){
             loc.x = Gdx.graphics.getWidth();
             loc.y = Gdx.graphics.getHeight();
         }
@@ -463,5 +481,25 @@ public class Player {
 
     public void setRecoiling(boolean recoiling){
         this.recoiling=recoiling;
+    }
+
+    public void setExp(int exp){
+        this.exp=exp;
+    }
+
+    public int getExp(){
+        return exp;
+    }
+
+    public int getDef(){
+        return def;
+    }
+
+    public int getSpd(){
+        return spd;
+    }
+
+    public int getLvl(){
+        return lvl;
     }
 }

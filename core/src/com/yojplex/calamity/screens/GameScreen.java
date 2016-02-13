@@ -39,11 +39,9 @@ public class GameScreen implements Screen {
     private boolean generated;
     private boolean changeFgSky;
     private boolean changeFgDirt;
-    private ArrayList<Monster> monsNegStrata;
-    private ArrayList<Monster> monsTopStrata;
+    private static ArrayList<Monster> monsNegStrata;
+    private static ArrayList<Monster> monsTopStrata;
     ArrayList<Monster.Type> monsTypes;
-    private BitmapFont strataFont;
-    private GlyphLayout strataFontLayout;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
@@ -65,15 +63,12 @@ public class GameScreen implements Screen {
         monsHeightToRemove=new ArrayList<Integer>();
         monsTypes=new ArrayList<Monster.Type>();
         monsTypes.add(Monster.Type.MUSHY);
-        genStrataMonsters(Gdx.graphics.getHeight()*0.5f, 1, 1, monsTypes);
+        genStrataMonsters(Gdx.graphics.getHeight() * 0.5f, 1, 1, monsTypes);
         genStrataMonsters(Gdx.graphics.getHeight() * 0.25f, 1, 2, monsTypes);
         genStrataMonsters(0, 2, 2, monsTypes);
         generated=false;
         monsNegStrata=new ArrayList<Monster>();
         monsTopStrata=new ArrayList<Monster>();
-
-        strataFont=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
-        strataFontLayout=new GlyphLayout();
     }
     @Override
     public void show() {
@@ -88,14 +83,13 @@ public class GameScreen implements Screen {
         batch.begin();
         bg.draw(batch);
 
-        strataFontLayout.setText(strataFont, "STRATA: " + player.getStrataNum());
-
         for (Monster monster:monsters){
             monster.draw(batch);
             if (monster.getCurHp()<=0){
                 Integer integer = monsters.indexOf(monster);
                 monsKillToRemove.add(integer);
                 player.setInBattle(false);
+                player.setExp(player.getExp()+monster.getExpProvided());
             }
             if (monster.getLoc().y>=Gdx.graphics.getHeight()*1.5){
                 Integer integer = monsters.indexOf(monster);
@@ -154,8 +148,11 @@ public class GameScreen implements Screen {
             shiftDirection=false;
         }
 
-        if (!shiftStrata && !generated){
+        if (player.getStrataNum()>2 && !monsTypes.contains(Monster.Type.SLIMELICK)){
             monsTypes.add(Monster.Type.SLIMELICK);
+        }
+
+        if (!shiftStrata && !generated){
             if (monsNegStrata.size()==0) {
                 genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, 2, 2, monsTypes);
             }
@@ -198,15 +195,14 @@ public class GameScreen implements Screen {
     public static void genStrataMonsters(float locY, int minLvl, int maxLvl, ArrayList<Monster.Type> monsTypes){
         ArrayList<Float> places=new ArrayList<Float>();
         places.add(225 * MyGdxGame.masterScale);
-        places.add(400 * MyGdxGame.masterScale);
-        places.add(575 * MyGdxGame.masterScale);
-        places.add(750 * MyGdxGame.masterScale);
-        places.add(925 * MyGdxGame.masterScale);
-        places.add(1100 * MyGdxGame.masterScale);
+        places.add(425 * MyGdxGame.masterScale);
+        places.add(625 * MyGdxGame.masterScale);
+        places.add(825 * MyGdxGame.masterScale);
+        places.add(1025 * MyGdxGame.masterScale);
         float place;
         Monster.Type monsType;
 
-        int numRand = (ThreadLocalRandom.current().nextInt(18));
+        int numRand = (ThreadLocalRandom.current().nextInt(16));
         int numMons = 0;
         switch (numRand){
             case 0:
@@ -257,16 +253,10 @@ public class GameScreen implements Screen {
             case 15:
                 numMons=5;
                 break;
-            case 16:
-                numMons=5;
-                break;
-            case 17:
-                numMons=6;
-                break;
         }
 
         for (int i=1; i<=numMons; i++){
-            place = places.get(ThreadLocalRandom.current().nextInt(6-(i-1)));
+            place = places.get(ThreadLocalRandom.current().nextInt(places.size()));
             monsType=monsTypes.get(ThreadLocalRandom.current().nextInt(monsTypes.size()));
             places.remove(place);
             monsters.add(new Monster(monsType, ThreadLocalRandom.current().nextInt(minLvl, maxLvl + 1), new Vector2(place, locY)));
@@ -331,5 +321,9 @@ public class GameScreen implements Screen {
 
     public static ArrayList<Monster> getMonsters() {
         return monsters;
+    }
+
+    public static ArrayList<Monster> getMonsTopStrata(){
+        return monsTopStrata;
     }
 }
