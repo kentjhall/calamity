@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -51,11 +52,13 @@ public class Player {
     private boolean recoiling;
     private BitmapFont font;
     private ArrayList<GlyphLayout> dmgLayout;
-    private ArrayList<Integer> dmgNums;
+    private ArrayList<String> dmgNums;
     private ArrayList<Integer> dmgNumsToRemove;
     private ArrayList<Float> dmgAlphaNums;
     private ArrayList<Integer> dmgFadeStage;
     private long healTime;
+    private boolean drawLvlUp;
+    private int upPoints;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/heroR_0.png");
@@ -81,12 +84,13 @@ public class Player {
         def=1;
         facingRight=true;
         healTime=TimeUtils.nanoTime();
+        upPoints=0;
 
         font=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
         font.getData().setScale(MyGdxGame.masterScale);
 
         dmgLayout=new ArrayList<GlyphLayout>();
-        dmgNums =new ArrayList<Integer>();
+        dmgNums =new ArrayList<String>();
         dmgNumsToRemove =new ArrayList<Integer>();
         dmgAlphaNums =new ArrayList<Float>();
         dmgFadeStage=new ArrayList<Integer>();
@@ -99,7 +103,15 @@ public class Player {
         expReqLevel=lvl*20;
         if (exp>=expReqLevel){
             lvl++;
+            upPoints+=3;
+            drawLvlUp=true;
             exp=0;
+        }
+        if (drawLvlUp && dmgNums.size()==0){
+            dmgNums.add("LVL UP");
+            GameScreen.getDropMenu().setTurnLvlGreen(true);
+            GameScreen.getDropMenu().setStageLvlGreen(1);
+            drawLvlUp=false;
         }
 
         if (TimeUtils.timeSinceNanos(healTime)>TimeUtils.millisToNanos(2000)){
@@ -255,47 +267,7 @@ public class Player {
             attackStage = 0;
             doAttack = false;
         }
-
-        for (int i=0; i<dmgNums.size(); i++){
-            if (dmgAlphaNums.size()< dmgNums.size()) {
-                dmgAlphaNums.add(i, 0f);
-                dmgFadeStage.add(i, 1);
-                dmgLayout.add(i, new GlyphLayout());
-            }
-            dmgLayout.get(i).setText(font, "" + dmgNums.get(i), new Color(1, 1, 1, dmgAlphaNums.get(i)), new GlyphLayout(font, "" + dmgNums.get(i)).width, 0, false);
-            if (dmgAlphaNums.get(i)<1 && dmgFadeStage.get(i)==1) {
-                dmgAlphaNums.set(i, dmgAlphaNums.get(i)+0.05f);
-            }
-            else if (dmgAlphaNums.get(i)>=1){
-                dmgFadeStage.set(i, 2);
-            }
-
-            if (dmgAlphaNums.get(i)>0 && dmgFadeStage.get(i)==2) {
-                dmgAlphaNums.set(i, dmgAlphaNums.get(i)-0.05f);
-            }
-            else if (dmgAlphaNums.get(i)<=0){
-                dmgFadeStage.set(i, 3);
-            }
-
-            if (dmgFadeStage.get(i)==3){
-                dmgAlphaNums.set(i, 0f);
-                dmgNumsToRemove.add(i);
-            }
-
-            if (dmgFadeStage.get(i)==1) {
-                font.draw(batch, dmgLayout.get(i), (loc.x + width/2) - dmgLayout.get(i).width/2, loc.y + 225 * MyGdxGame.masterScale + dmgAlphaNums.get(i) * 100f * MyGdxGame.masterScale);
-            }
-            else{
-                font.draw(batch, dmgLayout.get(i), (loc.x + width / 2) - dmgLayout.get(i).width / 2, loc.y + 225 * MyGdxGame.masterScale + 100f * MyGdxGame.masterScale);
-            }
-        }
-        for (Integer integer: dmgNumsToRemove){
-            dmgNums.remove(integer.intValue());
-            dmgAlphaNums.remove(integer.intValue());
-            dmgFadeStage.remove(integer.intValue());
-            dmgLayout.remove(integer.intValue());
-        }
-        dmgNumsToRemove.clear();
+        printDmgNums(batch);
     }
 
     public void attack(){
@@ -396,7 +368,52 @@ public class Player {
         if (curHp<0){
             curHp=0;
         }
-        dmgNums.add(dmg - def);
+        if (!drawLvlUp) {
+            dmgNums.add("" + (dmg - def));
+        }
+    }
+
+    public void printDmgNums(SpriteBatch batch){
+        for (int i=0; i<dmgNums.size(); i++){
+            if (dmgAlphaNums.size()< dmgNums.size()) {
+                dmgAlphaNums.add(i, 0f);
+                dmgFadeStage.add(i, 1);
+                dmgLayout.add(i, new GlyphLayout());
+            }
+            dmgLayout.get(i).setText(font, dmgNums.get(i), new Color(1, 1, 1, dmgAlphaNums.get(i)), new GlyphLayout(font, dmgNums.get(i)).width, 0, false);
+            if (dmgAlphaNums.get(i)<1 && dmgFadeStage.get(i)==1) {
+                dmgAlphaNums.set(i, dmgAlphaNums.get(i)+0.05f);
+            }
+            else if (dmgAlphaNums.get(i)>=1){
+                dmgFadeStage.set(i, 2);
+            }
+
+            if (dmgAlphaNums.get(i)>0 && dmgFadeStage.get(i)==2) {
+                dmgAlphaNums.set(i, dmgAlphaNums.get(i)-0.05f);
+            }
+            else if (dmgAlphaNums.get(i)<=0){
+                dmgFadeStage.set(i, 3);
+            }
+
+            if (dmgFadeStage.get(i)==3){
+                dmgAlphaNums.set(i, 0f);
+                dmgNumsToRemove.add(i);
+            }
+
+            if (dmgFadeStage.get(i)==1) {
+                font.draw(batch, dmgLayout.get(i), (loc.x + width/2) - dmgLayout.get(i).width/2, loc.y + 225 * MyGdxGame.masterScale + dmgAlphaNums.get(i) * 100f * MyGdxGame.masterScale);
+            }
+            else{
+                font.draw(batch, dmgLayout.get(i), (loc.x + width / 2) - dmgLayout.get(i).width / 2, loc.y + 225 * MyGdxGame.masterScale + 100f * MyGdxGame.masterScale);
+            }
+        }
+        for (Integer integer: dmgNumsToRemove){
+            dmgNums.remove(integer.intValue());
+            dmgAlphaNums.remove(integer.intValue());
+            dmgFadeStage.remove(integer.intValue());
+            dmgLayout.remove(integer.intValue());
+        }
+        dmgNumsToRemove.clear();
     }
 
     public void dispose(){
@@ -501,5 +518,13 @@ public class Player {
 
     public int getLvl(){
         return lvl;
+    }
+
+    public int getExpReqLevel(){
+        return expReqLevel;
+    }
+
+    public int getUpPoints(){
+        return upPoints;
     }
 }

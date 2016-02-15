@@ -17,3 +17,10 @@ eclipse.project {
     name = appName + "-ios"
     natures 'org.robovm.eclipse.RoboVMNature'
 }
+robovm {
+    iosSignIdentity = "iPhone Developer: Kent Hall (P7W3EBMRMF)"
+    iosProvisioningProfile = "CalamityDev"
+    iosSkipSigning = false
+    //stdoutFifo = ""
+    //stderrFifo = ""
+}
