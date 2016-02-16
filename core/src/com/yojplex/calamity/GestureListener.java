@@ -28,7 +28,7 @@ public class GestureListener implements GestureDetector.GestureListener{
         if (GameScreen.getDropMenu().getDrawerUp() && velocityY>4000){
             GameScreen.getDropMenu().setVelY(-velocityY*0.02f*MyGdxGame.masterScale);
         }
-        if (!GameScreen.getDropMenu().getDrawerUp() && velocityY<-4000){
+        else if (!GameScreen.getDropMenu().getDrawerUp() && velocityY<-4000){
             GameScreen.getDropMenu().setVelY(-velocityY*0.02f*MyGdxGame.masterScale);
         }
         return false;

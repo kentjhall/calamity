@@ -39,6 +39,7 @@ public class Player {
     private int spd;
     private int maxHp;
     private int curHp;
+    private int moveSpd;
     private int lvl;
     private int exp;
     private int expReqLevel;
@@ -59,6 +60,7 @@ public class Player {
     private long healTime;
     private boolean drawLvlUp;
     private int upPoints;
+    private boolean butPressed;
 
     public Player(Vector2 loc){
         pTexture=new Texture("player/heroR_0.png");
@@ -100,10 +102,11 @@ public class Player {
         batch.draw(pTexture, loc.x, loc.y, width, height);
 
         maxHp=lvl*5;
+        moveSpd=spd+4;
         expReqLevel=lvl*20;
         if (exp>=expReqLevel){
             lvl++;
-            upPoints+=3;
+            upPoints+=2;
             drawLvlUp=true;
             exp=0;
         }
@@ -135,14 +138,14 @@ public class Player {
         //update sword pos y
         wLoc.y=loc.y+80*MyGdxGame.masterScale;
 
-        //when input is to move left and not in battle
-        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
+        //when input is to move left and not in battle and no button is pressed on screen
+        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle && !butPressed){
             //make sure player does not go behind strata 0
             if (strataNum>0) {
                 //player go left
                 //change texture of player and sword to facing left
                 //update sword pos relative to player
-                vel.x = -10;
+                vel.x = -moveSpd;
                 pTexture=new Texture("player/heroL_0.png");
                 wTexture=new TextureRegion(new Texture("weapons/hEdgeL.png"));
                 facingRight=false;
@@ -151,7 +154,7 @@ public class Player {
                 //player go left
                 //change texture of player and sword to facing left
                 //update sword pos relative to player
-                vel.x = -10;
+                vel.x = -moveSpd;
                 pTexture=new Texture("player/heroL_0.png");
                 wTexture=new TextureRegion(new Texture("weapons/hEdgeL.png"));
                 facingRight=false;
@@ -166,12 +169,12 @@ public class Player {
                 vel.x=0;
             }
         }
-        //when input is to move right and not in battle
-        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle){
+        //when input is to move right and not in battle and no button is pressed on screen
+        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle && !butPressed){
             //player go right
             //change texture of player and sword to facing left
             //update sword pos relative to player
-            vel.x=10;
+            vel.x=moveSpd;
             pTexture=new Texture("player/heroR_0.png");
             wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
             facingRight=true;
@@ -526,5 +529,25 @@ public class Player {
 
     public int getUpPoints(){
         return upPoints;
+    }
+
+    public void setUpPoints(int upPoints){
+        this.upPoints=upPoints;
+    }
+
+    public void setAtk(int atk){
+        this.atk=atk;
+    }
+
+    public void setDef(int def){
+        this.def=def;
+    }
+
+    public void setSpd(int spd){
+        this.spd=spd;
+    }
+
+    public void setButPressed(boolean butPressed){
+        this.butPressed=butPressed;
     }
 }

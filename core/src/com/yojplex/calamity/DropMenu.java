@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
@@ -41,7 +42,12 @@ public class DropMenu {
     private float amtLvlGreen;
     private boolean turnLvlGreen;
     private int stageLvlGreen;
-    private Texture addButton;
+    private Texture addButtonU;
+    private Texture addButtonD;
+    private GlyphLayout upPntLayout;
+    private Button atkUp;
+    private Button defUp;
+    private Button spdUp;
 
     public DropMenu(){
         dropMenu=new Texture("dropMenu1.png");
@@ -56,7 +62,8 @@ public class DropMenu {
         esWidth=width;
         esHeight= barFill.getTextureData().getHeight()*MyGdxGame.masterScale;
         drawerUp=true;
-        addButton=new Texture("addButton.png");
+        addButtonU=new Texture("addButtonU.png");
+        addButtonD=new Texture("addButtonD.png");
 
         gestureListener=new GestureListener();
         Gdx.input.setInputProcessor(new GestureDetector(gestureListener));
@@ -70,8 +77,9 @@ public class DropMenu {
         menuFont2.getData().setScale(0.8f * MyGdxGame.masterScale);
         menuFont3=new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
         menuFont3.getData().setScale(1.2f * MyGdxGame.masterScale);
-        menuFont4 =new BitmapFont(Gdx.files.internal("fonts/gFillStrokeFont/font.fnt"), Gdx.files.internal("fonts/gFillStrokeFont/font.png"), false);
-        menuFont4.getData().setScale(0.8f * MyGdxGame.masterScale);
+        menuFont4 =new BitmapFont(Gdx.files.internal("fonts/dmgFont/font.fnt"), Gdx.files.internal("fonts/dmgFont/font.png"), false);
+        menuFont4.getData().setScale(1.12f * MyGdxGame.masterScale);
+        upPntLayout=new GlyphLayout();
 
         strataFontLayout=new GlyphLayout();
         lvlFontLayout=new GlyphLayout();
@@ -79,6 +87,10 @@ public class DropMenu {
         amtLvlGreen=0;
         turnLvlGreen=false;
         stageLvlGreen=1;
+
+        atkUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
+        defUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
+        spdUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
     }
 
     public void draw(SpriteBatch batch){
@@ -149,22 +161,48 @@ public class DropMenu {
 
         menuFont2.draw(batch, "STATS", Gdx.graphics.getWidth() * 0.55f, loc.y + 1625 * MyGdxGame.masterScale);
         if (GameScreen.getPlayer().getUpPoints()>0){
-            menuFont4.draw(batch, "" + GameScreen.getPlayer().getUpPoints(), Gdx.graphics.getWidth() * 0.853f, loc.y + 1625 * MyGdxGame.masterScale);
+            upPntLayout.setText(menuFont4, "" + GameScreen.getPlayer().getUpPoints());
+            menuFont4.draw(batch, upPntLayout, (Gdx.graphics.getWidth() * 0.787f + addButtonU.getTextureData().getWidth()*5) - upPntLayout.width/2, loc.y + 1625 * MyGdxGame.masterScale);
         }
         else{
-            menuFont2.draw(batch, "" + GameScreen.getPlayer().getUpPoints(), Gdx.graphics.getWidth() * 0.853f, loc.y + 1625 * MyGdxGame.masterScale);
+            upPntLayout.setText(menuFont2, "" + GameScreen.getPlayer().getUpPoints());
+            menuFont2.draw(batch, upPntLayout, (Gdx.graphics.getWidth() * 0.787f + addButtonU.getTextureData().getWidth()*5) - upPntLayout.width/2, loc.y + 1625 * MyGdxGame.masterScale);
         }
         menuFont1.draw(batch, "ATK:" + GameScreen.getPlayer().getAtk(), Gdx.graphics.getWidth() * 0.55f, loc.y + 1470 * MyGdxGame.masterScale);
         menuFont1.draw(batch, "DEF:" + GameScreen.getPlayer().getDef(), Gdx.graphics.getWidth() * 0.55f, loc.y + 1325 * MyGdxGame.masterScale);
         menuFont1.draw(batch, "SPD:" + GameScreen.getPlayer().getSpd(), Gdx.graphics.getWidth() * 0.55f, loc.y + 1180 * MyGdxGame.masterScale);
 
-        batch.draw(addButton, Gdx.graphics.getWidth() * 0.787f, loc.y + 1400 * MyGdxGame.masterScale, addButton.getTextureData().getWidth()*10, addButton.getTextureData().getHeight()*10);
-        batch.draw(addButton, Gdx.graphics.getWidth() * 0.787f, loc.y + 1255 * MyGdxGame.masterScale, addButton.getTextureData().getWidth()*10, addButton.getTextureData().getHeight()*10);
-        batch.draw(addButton, Gdx.graphics.getWidth() * 0.787f, loc.y + 1110 * MyGdxGame.masterScale, addButton.getTextureData().getWidth()*10, addButton.getTextureData().getHeight()*10);
+        atkUp.draw(batch, new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1400 * MyGdxGame.masterScale), new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1255 * MyGdxGame.masterScale));
+        defUp.draw(batch, new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1255 * MyGdxGame.masterScale), new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1400 * MyGdxGame.masterScale));
+        spdUp.draw(batch, new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1110 * MyGdxGame.masterScale), new Vector2(Gdx.graphics.getWidth() * 0.787f, loc.y + 1545 * MyGdxGame.masterScale));
+
+        if (atkUp.getButPressStage() == 2 && GameScreen.getPlayer().getUpPoints()>0){
+            GameScreen.getPlayer().setAtk(GameScreen.getPlayer().getAtk() + 1);
+            GameScreen.getPlayer().setUpPoints(GameScreen.getPlayer().getUpPoints() - 1);
+            atkUp.setButPressStage(0);
+        }
+        if (defUp.getButPressStage() == 2 && GameScreen.getPlayer().getUpPoints()>0){
+            GameScreen.getPlayer().setDef(GameScreen.getPlayer().getDef() + 1);
+            GameScreen.getPlayer().setUpPoints(GameScreen.getPlayer().getUpPoints() - 1);
+            defUp.setButPressStage(0);
+        }
+        if (spdUp.getButPressStage() == 2 && GameScreen.getPlayer().getUpPoints()>0){
+            GameScreen.getPlayer().setSpd(GameScreen.getPlayer().getSpd() + 1);
+            GameScreen.getPlayer().setUpPoints(GameScreen.getPlayer().getUpPoints() - 1);
+            spdUp.setButPressStage(0);
+        }
     }
 
     public void dispose(){
         dropMenu.dispose();
+        atkUp.dispose();
+        defUp.dispose();
+        spdUp.dispose();
+        hpFont.dispose();
+        menuFont1.dispose();
+        menuFont2.dispose();
+        menuFont3.dispose();
+        menuFont4.dispose();
     }
 
     public void setVelY(float velY){
