@@ -47,12 +47,14 @@ public class Button {
                 GameScreen.getPlayer().setButPressed(true);
             }
             else if (butPressStage==1){
+                System.out.println("here");
                 butPressStage = 2;
                 GameScreen.getPlayer().setButPressed(false);
             }
         }
         else{
             butPressStage=0;
+            GameScreen.getPlayer().setButPressed(false);
         }
     }
     public void dispose(){
@@ -65,5 +67,9 @@ public class Button {
 
     public void setButPressStage(int butPressStage){
         this.butPressStage=butPressStage;
+    }
+
+    public Rectangle getHitBox(){
+        return hitBox;
     }
 }

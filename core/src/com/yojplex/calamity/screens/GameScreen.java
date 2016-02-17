@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.yojplex.calamity.Background;
+import com.yojplex.calamity.ButInputChecker;
 import com.yojplex.calamity.DropMenu;
 import com.yojplex.calamity.Foreground;
 import com.yojplex.calamity.Monster;
@@ -42,15 +43,17 @@ public class GameScreen implements Screen {
     private static ArrayList<Monster> monsNegStrata;
     private static ArrayList<Monster> monsTopStrata;
     ArrayList<Monster.Type> monsTypes;
+    private static ButInputChecker butInputChecker;
 
     public GameScreen(SpriteBatch batch){
         this.batch=batch;
 
-        player=new Player(new Vector2(0, Gdx.graphics.getHeight() * 0.75f));
+        player=new Player(new Vector2(0, Gdx.graphics.getHeight() * 0.75f + 15*MyGdxGame.masterScale));
         shiftSpeed=30*MyGdxGame.masterScale;
 
+        butInputChecker=new ButInputChecker();
         dropMenu=new DropMenu();
-        fg1 = new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f), Foreground.Type.SKY);
+        fg1=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.75f), Foreground.Type.SKY);
         fg2=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.5f), Foreground.Type.DIRT);
         fg3=new Foreground(new Vector2(0, Gdx.graphics.getHeight() * 0.25f), Foreground.Type.DIRT);
         fg4=new Foreground(new Vector2(0, -Gdx.graphics.getHeight()*0.25f), Foreground.Type.DIRT);
@@ -98,16 +101,22 @@ public class GameScreen implements Screen {
             checkMonsOnStrata(monster);
         }
         for (Integer integer: monsKillToRemove){
+            Monster monster = monsters.get(integer.intValue());
             monsters.remove(integer.intValue());
+            monster.dispose();
         }
         for (Integer integer: monsHeightToRemove){
             if (monsters.size()>integer.intValue()) {
+                Monster monster = monsters.get(integer.intValue());
                 monsters.remove(integer.intValue());
+                monster.dispose();
             }
         }
         monsKillToRemove.clear();
         monsHeightToRemove.clear();
 
+        //check if any button is being pressed before drawing the player, so that it can stop the player before moving if pressed
+        butInputChecker.draw();
         player.draw(batch);
         if (player.getStrataNum()==1 && shiftStrata && !shiftDirection && changeFgSky){
             fg1.changeType(Foreground.Type.SKY);
@@ -134,7 +143,7 @@ public class GameScreen implements Screen {
         dropMenu.draw(batch);
         batch.end();
 
-        if (player.getLoc().y<Gdx.graphics.getHeight() * 0.75f - 20 * MyGdxGame.masterScale || player.getLoc().y>Gdx.graphics.getHeight() * 0.75f + 20 * MyGdxGame.masterScale){
+        if (Math.abs(player.getLoc().y - (0.75*Gdx.graphics.getHeight() + 15*MyGdxGame.masterScale))>10){
             shiftStrata=true;
         }
         else{
@@ -325,5 +334,9 @@ public class GameScreen implements Screen {
 
     public static ArrayList<Monster> getMonsTopStrata(){
         return monsTopStrata;
+    }
+
+    public static ButInputChecker getButInputChecker(){
+        return butInputChecker;
     }
 }

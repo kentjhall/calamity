@@ -91,6 +91,10 @@ public class DropMenu {
         atkUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
         defUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
         spdUp=new Button(addButtonU, addButtonD, addButtonU.getTextureData().getWidth()*10, addButtonU.getTextureData().getHeight()*10);
+
+        GameScreen.getButInputChecker().getHitBoxes().add(atkUp.getHitBox());
+        GameScreen.getButInputChecker().getHitBoxes().add(defUp.getHitBox());
+        GameScreen.getButInputChecker().getHitBoxes().add(spdUp.getHitBox());
     }
 
     public void draw(SpriteBatch batch){
@@ -112,14 +116,14 @@ public class DropMenu {
 
         if (turnLvlGreen){
             if (amtLvlGreen<1 && stageLvlGreen==1) {
-                amtLvlGreen += 0.05;
+                amtLvlGreen += 0.045;
             }
             else if (amtLvlGreen>=1 && stageLvlGreen==1){
                 stageLvlGreen=2;
             }
 
             if (amtLvlGreen>0 && stageLvlGreen==2){
-                amtLvlGreen-=0.05;
+                amtLvlGreen-=0.045;
             }
             else if (amtLvlGreen<=0 && stageLvlGreen==2){
                 amtLvlGreen=0;
@@ -191,6 +195,9 @@ public class DropMenu {
             GameScreen.getPlayer().setUpPoints(GameScreen.getPlayer().getUpPoints() - 1);
             spdUp.setButPressStage(0);
         }
+        GameScreen.getButInputChecker().getHitBoxes().set(0, atkUp.getHitBox());
+        GameScreen.getButInputChecker().getHitBoxes().set(1, defUp.getHitBox());
+        GameScreen.getButInputChecker().getHitBoxes().set(2, spdUp.getHitBox());
     }
 
     public void dispose(){
@@ -223,5 +230,17 @@ public class DropMenu {
 
     public void setStageLvlGreen(int stageLvlGreen){
         this.stageLvlGreen=stageLvlGreen;
+    }
+
+    public Button getAtkUp(){
+        return atkUp;
+    }
+
+    public Button getDefUp(){
+        return defUp;
+    }
+
+    public Button getSpdUp(){
+        return spdUp;
     }
 }

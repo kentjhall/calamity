@@ -3,8 +3,8 @@ package com.yojplex.calamity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -13,15 +13,24 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.yojplex.calamity.screens.GameScreen;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
  * Created by kenthall on 1/31/16.
  */
 public class Player {
-    private Texture pTexture;
+    private Animation pAnimationR;
+    private Animation pAnimationL;
+    private TextureRegion[] pTexturesR;
+    private TextureRegion[] pTexturesL;
+    private TextureRegion pFrame;
+    private float pStateTime;
+    private TextureRegion pTexture;
+    private TextureRegion playerR;
+    private TextureRegion playerL;
     private TextureRegion wTexture;
+    private TextureRegion weaponL;
+    private TextureRegion weaponR;
     private int wRotAngle;
     private float width;
     private float height;
@@ -39,7 +48,7 @@ public class Player {
     private int spd;
     private int maxHp;
     private int curHp;
-    private int moveSpd;
+    private float moveSpd;
     private int lvl;
     private int exp;
     private int expReqLevel;
@@ -61,10 +70,26 @@ public class Player {
     private boolean drawLvlUp;
     private int upPoints;
     private boolean butPressed;
+    private boolean moving;
 
     public Player(Vector2 loc){
-        pTexture=new Texture("player/heroR_0.png");
-        wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
+        pTexturesR=new TextureRegion[5];
+        pTexturesL=new TextureRegion[5];
+        for (int i=0; i<pTexturesR.length; i++){
+            pTexturesR[i]=new TextureRegion(new Texture("player/heroR_" + i + ".png"));
+            pTexturesL[i]=new TextureRegion(pTexturesR[i]);
+            pTexturesL[i].flip(true, false);
+        }
+        pAnimationR =new Animation(0.15f, pTexturesR[1], pTexturesR[2], pTexturesR[3], pTexturesR[4]);
+        pAnimationL =new Animation(0.15f, pTexturesL[1], pTexturesL[2], pTexturesL[3], pTexturesL[4]);
+        pStateTime=0f;
+        playerR=new TextureRegion(pTexturesR[0]);
+        playerL=new TextureRegion(pTexturesL[0]);
+        pTexture=playerR;
+        weaponR =new TextureRegion(new Texture("weapons/hEdgeR.png"));
+        weaponL=new TextureRegion(weaponR);
+        weaponL.flip(true, false);
+        wTexture=new TextureRegion(weaponR);
         wRotAngle = 90;
 
         width=150*MyGdxGame.masterScale;
@@ -99,10 +124,17 @@ public class Player {
     }
 
     public void draw(SpriteBatch batch){
-        batch.draw(pTexture, loc.x, loc.y, width, height);
+        if (moving){
+            walkAnimate(batch);
+        }
+        else {
+            batch.draw(pTexture, loc.x, loc.y, width, height);
+            pStateTime=0f;
+        }
 
         maxHp=lvl*5;
-        moveSpd=spd+4;
+        //if below values change, change for sword motion as well
+        moveSpd=6 + spd*0.25f;
         expReqLevel=lvl*20;
         if (exp>=expReqLevel){
             lvl++;
@@ -136,57 +168,65 @@ public class Player {
         //update hitbox
         hitBox.set(loc.x, loc.y, width, height);
         //update sword pos y
-        wLoc.y=loc.y+80*MyGdxGame.masterScale;
+
+        //change below moveSpd fraction if speed values change
+        wLoc.y=(float)Math.sin(4*MyGdxGame.masterScale*loc.x*(6.25/moveSpd))*2*MyGdxGame.masterScale + 1.044f*loc.y;
 
         //when input is to move left and not in battle and no button is pressed on screen
-        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle && !butPressed){
+        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed){
             //make sure player does not go behind strata 0
-            if (strataNum>0) {
+            if (strataNum>0 || loc.x>0) {
                 //player go left
                 //change texture of player and sword to facing left
                 //update sword pos relative to player
                 vel.x = -moveSpd;
-                pTexture=new Texture("player/heroL_0.png");
-                wTexture=new TextureRegion(new Texture("weapons/hEdgeL.png"));
+                pTexture=playerL;
+                wTexture=weaponL;
                 facingRight=false;
-            }
-            else if (loc.x>0){
-                //player go left
-                //change texture of player and sword to facing left
-                //update sword pos relative to player
-                vel.x = -moveSpd;
-                pTexture=new Texture("player/heroL_0.png");
-                wTexture=new TextureRegion(new Texture("weapons/hEdgeL.png"));
-                facingRight=false;
+                moving=true;
             }
             else{
                 //stop player when conditions not met
                 vel.x=0;
+                moving=false;
             }
 
             //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && GameScreen.getShiftDirection()){
                 vel.x=0;
+                moving=false;
+            }
+
+            if (inBattle && facingRight && monsToRight){
+                vel.x=0;
+                moving=false;
             }
         }
         //when input is to move right and not in battle and no button is pressed on screen
-        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !inBattle && !butPressed){
+        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed){
             //player go right
             //change texture of player and sword to facing left
             //update sword pos relative to player
             vel.x=moveSpd;
-            pTexture=new Texture("player/heroR_0.png");
-            wTexture=new TextureRegion(new Texture("weapons/hEdgeR.png"));
+            pTexture=playerR;
+            wTexture=weaponR;
             facingRight=true;
+            moving=true;
 
             //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && !GameScreen.getShiftDirection()){
                 vel.x=0;
+                moving=false;
+            }
+            if (inBattle && !facingRight && !monsToRight){
+                vel.x=0;
+                moving=false;
             }
         }
         else{
             //stop player when conditions not met
             vel.x=0;
+            moving=false;
         }
 
         //constrain sword position to player based on direction
@@ -200,13 +240,13 @@ public class Player {
         //wraps player to other side and down strata if move right off screen
         if (loc.x>Gdx.graphics.getWidth() && !monsAtk){
             loc.x=-width;
-            loc.y=Gdx.graphics.getHeight()*0.5f;
+            loc.y=Gdx.graphics.getHeight()*0.5f + 15*MyGdxGame.masterScale;
         }
 
         //wraps player to other side and up strata if move left off screen
         if (loc.x<-width && !monsAtk){
             loc.x = Gdx.graphics.getWidth();
-            loc.y = Gdx.graphics.getHeight();
+            loc.y = Gdx.graphics.getHeight() + 15*MyGdxGame.masterScale;
         }
 
         //changes player velocity to up or down, depending on which way strata is shifting
@@ -223,7 +263,7 @@ public class Player {
         else if (vel.y!=0){
             //stops motion when GameScreen.shiftStrata is no longer true, accounts for any change in position
             vel.y=0;
-            loc.y=Gdx.graphics.getHeight()*0.75f;
+            loc.y=Gdx.graphics.getHeight()*0.75f + 15*MyGdxGame.masterScale;
         }
 
         //checks if strata was changing, but stopped
@@ -419,8 +459,23 @@ public class Player {
         dmgNumsToRemove.clear();
     }
 
+    public void walkAnimate(SpriteBatch batch){
+        pStateTime+=Gdx.graphics.getDeltaTime();
+        if (facingRight){
+            pFrame=pAnimationR.getKeyFrame(pStateTime, true);
+        }
+        else{
+            pFrame=pAnimationL.getKeyFrame(pStateTime, true);
+        }
+        batch.draw(pFrame, loc.x, loc.y, width, height);
+    }
+
     public void dispose(){
-        pTexture.dispose();
+        pTexture.getTexture().dispose();
+        playerR.getTexture().dispose();
+        playerL.getTexture().dispose();
+        weaponL.getTexture().dispose();
+        weaponR.getTexture().dispose();
     }
 
     public Vector2 getLoc(){
