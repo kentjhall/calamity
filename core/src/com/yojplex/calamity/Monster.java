@@ -25,6 +25,7 @@ public class Monster {
     private TextureRegion[] monsTexture;
     private TextureRegion monsFrame;
     private float monsStateTime;
+    private int lvl;
     private int atk;
     private int dur;
     private int maxHp;
@@ -80,6 +81,12 @@ public class Monster {
         upAtkTime1=false;
         upAtkTime2=true;
         this.type=type;
+        if (this.lvl>0) {
+            this.lvl = lvl;
+        }
+        else{
+            lvl=1;
+        }
 
         atk = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 2) + 1);
         dur = ThreadLocalRandom.current().nextInt(1, (lvl * 3 - 1 - atk) + 1);
@@ -182,7 +189,7 @@ public class Monster {
         }
 
         if (inBattle){
-            if (TimeUtils.timeSinceNanos(attackTime)>TimeUtils.millisToNanos(2000/spd) && !GameScreen.getPlayer().getDoAttack()){
+            if (TimeUtils.timeSinceNanos(attackTime)>TimeUtils.millisToNanos(3000/spd) && !GameScreen.getPlayer().getDoAttack()){
                 if (loc.x>GameScreen.getPlayer().getLoc().x) {
                     doAttackR = true;
                     doAttackL=false;

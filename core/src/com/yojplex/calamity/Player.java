@@ -70,7 +70,6 @@ public class Player {
     private boolean drawLvlUp;
     private int upPoints;
     private boolean butPressed;
-    private boolean moving;
 
     public Player(Vector2 loc){
         pTexturesR=new TextureRegion[5];
@@ -124,7 +123,7 @@ public class Player {
     }
 
     public void draw(SpriteBatch batch){
-        if (moving){
+        if (vel.x!=0){
             walkAnimate(batch);
         }
         else {
@@ -173,7 +172,7 @@ public class Player {
         wLoc.y=(float)Math.sin(4*MyGdxGame.masterScale*loc.x*(6.25/moveSpd))*2*MyGdxGame.masterScale + 1.044f*loc.y;
 
         //when input is to move left and not in battle and no button is pressed on screen
-        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed){
+        if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed && !inBattle){
             //make sure player does not go behind strata 0
             if (strataNum>0 || loc.x>0) {
                 //player go left
@@ -183,27 +182,20 @@ public class Player {
                 pTexture=playerL;
                 wTexture=weaponL;
                 facingRight=false;
-                moving=true;
             }
             else{
                 //stop player when conditions not met
                 vel.x=0;
-                moving=false;
             }
 
             //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && GameScreen.getShiftDirection()){
                 vel.x=0;
-                moving=false;
             }
 
-            if (inBattle && facingRight && monsToRight){
-                vel.x=0;
-                moving=false;
-            }
         }
         //when input is to move right and not in battle and no button is pressed on screen
-        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed){
+        else if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched() && !butPressed && !inBattle){
             //player go right
             //change texture of player and sword to facing left
             //update sword pos relative to player
@@ -211,22 +203,40 @@ public class Player {
             pTexture=playerR;
             wTexture=weaponR;
             facingRight=true;
-            moving=true;
 
             //stops player from moving back when strata is shifting
             if (GameScreen.getShiftStrata() && !GameScreen.getShiftDirection()){
                 vel.x=0;
-                moving=false;
             }
-            if (inBattle && !facingRight && !monsToRight){
-                vel.x=0;
-                moving=false;
+        }
+        //allow player to move backwards when in battle
+        else if(inBattle && !butPressed){
+            if(monsToRight){
+                if (Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
+                    vel.x=-moveSpd;
+                    pTexture=playerL;
+                    wTexture=weaponL;
+                    facingRight=false;
+                }
+                else{
+                    vel.x=0;
+                }
+            }
+            else{
+                if (Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Gdx.input.isTouched()){
+                    vel.x=moveSpd;
+                    pTexture=playerR;
+                    wTexture=weaponR;
+                    facingRight=true;
+                }
+                else{
+                    vel.x=0;
+                }
             }
         }
         else{
             //stop player when conditions not met
             vel.x=0;
-            moving=false;
         }
 
         //constrain sword position to player based on direction
@@ -314,7 +324,7 @@ public class Player {
     }
 
     public void attack(){
-        int hitSpeed=18;
+        int hitSpeed=20;
 
         if (facingRight) {
             //go up to 140 degree angle to start strike

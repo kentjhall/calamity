@@ -163,14 +163,14 @@ public class GameScreen implements Screen {
 
         if (!shiftStrata && !generated){
             if (monsNegStrata.size()==0) {
-                genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, 2, 2, monsTypes);
+                genStrataMonsters(-Gdx.graphics.getHeight() * 0.25f, (player.getStrataNum()+4)-1, (player.getStrataNum()+4)+1, monsTypes);
             }
             if (monsTopStrata.size()==0) {
                 if (!shiftDirection && player.getStrataNum()>2) {
-                    genStrataMonsters(Gdx.graphics.getHeight(), 2, 2, monsTypes);
+                    genStrataMonsters(Gdx.graphics.getHeight(), (player.getStrataNum()-1)-1, (player.getStrataNum()-1)+1, monsTypes);
                 }
                 if (shiftDirection && player.getStrataNum()>1) {
-                    genStrataMonsters(Gdx.graphics.getHeight(), 2, 2, monsTypes);
+                    genStrataMonsters(Gdx.graphics.getHeight(), (player.getStrataNum()-1)-1, (player.getStrataNum()-1)+1, monsTypes);
                 }
             }
             generated=true;
