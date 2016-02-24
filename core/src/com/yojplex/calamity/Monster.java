@@ -28,8 +28,8 @@ public class Monster {
     private int lvl;
     private int atk;
     private int dur;
-    private int maxHp;
-    private int curHp;
+    private float maxHp;
+    private float curHp;
     private int spd;
     private Vector2 loc;
     private Vector2 vel;
@@ -168,14 +168,14 @@ public class Monster {
             }
         }
 
-        if (loc.x>GameScreen.getPlayer().getLoc().x && Gdx.input.getX()<Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
+        if (loc.x>GameScreen.getPlayer().getLoc().x && Gdx.input.getX()<Gdx.graphics.getWidth()/2 && Math.abs(loc.y-GameScreen.getPlayer().getLoc().y)<50*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
                 upAtkTime2=true;
             }
         }
-        if (loc.x<GameScreen.getPlayer().getLoc().x && Gdx.input.getX()>Gdx.graphics.getWidth()/2 && loc.y>GameScreen.getPlayer().getLoc().y-10*MyGdxGame.masterScale && loc.y<GameScreen.getPlayer().getLoc().y+10*MyGdxGame.masterScale){
+        if (loc.x<GameScreen.getPlayer().getLoc().x && Gdx.input.getX()>Gdx.graphics.getWidth()/2 && Math.abs(loc.y-GameScreen.getPlayer().getLoc().y)<50*MyGdxGame.masterScale){
             GameScreen.getPlayer().setInBattle(false);
             if (inBattle){
                 inBattle=false;
@@ -207,7 +207,7 @@ public class Monster {
             }
 
             if (GameScreen.getPlayer().getSigAttackHit()){
-                curHp=curHp-GameScreen.getPlayer().getAtk();
+                curHp=curHp-(GameScreen.getPlayer().getAtk()/2);
                 GameScreen.getPlayer().setSigAttackHit(false);
             }
         }
@@ -277,7 +277,7 @@ public class Monster {
         healthSeg.dispose();
     }
 
-    public int getCurHp(){
+    public float getCurHp(){
         return curHp;
     }
 
